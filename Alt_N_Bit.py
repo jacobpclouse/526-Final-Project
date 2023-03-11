@@ -1,6 +1,7 @@
 # Written by Luna D. and Jacob Clouse for ICSI 526 
-# Edited on Windows 10 - may need to be edited if you want to use on Linux/MacOS
+
 # Original Paper -> Alternative N-bit Key Data Encryption for Block Ciphers
+# Edited on Windows 10 - may need to be edited if you want to use on Linux/MacOS
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Importing Libraries / Modules 
