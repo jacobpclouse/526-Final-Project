@@ -3,6 +3,13 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 
 ## Paper: Alternative N-bit Key Data Encryption for Block Ciphers
 
+## Goals:
+1) Figure out hashing, figure out XOR / bitwise (encrypt & decrypt)
+2) Combine the two above, figure out how to encrypt a single block with both
+3) Figure out how to reverse and decrypt that block
+4) Figure out how to chain blocks n number of times (based on user input) - encryption then decryption
+5) Figure out how to add the obfuscation with Alt n bits
+6) Cleanup code, add additional funtionality and potentially GUI
 
 ## Resources:
 - Python hash() method: https://www.geeksforgeeks.org/python-hash-method/
