@@ -1,6 +1,14 @@
 import hashlib
 import ecdsa
 
+'''
+
+DO NOT USE THIS, IT DOES NOT WORK!!!!!!!!!!
+ONLY useful for concepts
+
+'''
+
+
 # Define the elliptic curve and the generator point
 secp256k1_curve = ecdsa.curves.SECP256k1
 generator_point = secp256k1_curve.generator
