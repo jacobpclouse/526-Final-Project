@@ -11,8 +11,14 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 5) Figure out how to add the obfuscation with Alt n bits
 6) Cleanup code, add additional funtionality and potentially GUI
 
+## Issues:
+- [ ] How do we retrieve a public key and multiply it with our own private key?
+- [ ] How do we determine the block size of our encryption?
+
 ## Resources:
 - Python hash() method: https://www.geeksforgeeks.org/python-hash-method/
 - Python Bitwise Operators (ex: ^): https://www.geeksforgeeks.org/python-bitwise-operators/
 - hashlib module in Python: https://www.geeksforgeeks.org/hashlib-module-in-python/
 - Public Keys - A unique number generated from your private key: https://learnmeabitcoin.com/beginners/public_keys
+- Elliptic Curve Cryptography (ECC): https://cryptobook.nakov.com/asymmetric-key-ciphers/elliptic-curve-cryptography-ecc
+- SHA in Python: https://www.geeksforgeeks.org/sha-in-python/
