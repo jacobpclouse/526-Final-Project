@@ -22,3 +22,4 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Public Keys - A unique number generated from your private key: https://learnmeabitcoin.com/beginners/public_keys
 - Elliptic Curve Cryptography (ECC): https://cryptobook.nakov.com/asymmetric-key-ciphers/elliptic-curve-cryptography-ecc
 - SHA in Python: https://www.geeksforgeeks.org/sha-in-python/
+- Scalar Multiplication in Python: https://onyb.gitbook.io/secp256k1-python/scalar-multiplication-in-python
