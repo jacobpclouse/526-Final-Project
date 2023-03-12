@@ -15,3 +15,4 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Python hash() method: https://www.geeksforgeeks.org/python-hash-method/
 - Python Bitwise Operators (ex: ^): https://www.geeksforgeeks.org/python-bitwise-operators/
 - hashlib module in Python: https://www.geeksforgeeks.org/hashlib-module-in-python/
+- Public Keys - A unique number generated from your private key: https://learnmeabitcoin.com/beginners/public_keys
