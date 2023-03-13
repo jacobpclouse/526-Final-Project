@@ -24,4 +24,5 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - SHA in Python: https://www.geeksforgeeks.org/sha-in-python/
 - Scalar Multiplication in Python: https://onyb.gitbook.io/secp256k1-python/scalar-multiplication-in-python
 - pycryptodome ECC: https://pycryptodome.readthedocs.io/en/latest/src/public_key/ecc.html
+- *python-ecdsa’s documentation*: https://ecdsa.readthedocs.io/en/latest/
 - The Wonderful World of Elliptic Curve Cryptography (MEDIUM): https://medium.com/coinmonks/the-wonderful-world-of-elliptic-curve-cryptography-b7784acdef50
