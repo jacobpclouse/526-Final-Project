@@ -23,3 +23,4 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Elliptic Curve Cryptography (ECC): https://cryptobook.nakov.com/asymmetric-key-ciphers/elliptic-curve-cryptography-ecc
 - SHA in Python: https://www.geeksforgeeks.org/sha-in-python/
 - Scalar Multiplication in Python: https://onyb.gitbook.io/secp256k1-python/scalar-multiplication-in-python
+- pycryptodome ECC: https://pycryptodome.readthedocs.io/en/latest/src/public_key/ecc.html
