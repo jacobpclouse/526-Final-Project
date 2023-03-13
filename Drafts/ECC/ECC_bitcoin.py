@@ -5,7 +5,8 @@
 from math import log
 from copy import copy
 from time import time # timing
-from fractions import gcd # Greatest Common Denominator
+# from fractions import gcd # Greatest Common Denominator -- This was depreciated in Python 3.10.
+from math import gcd # Greatest Common Denominator -- where gcd was moved to 
 from random import SystemRandom # cryptographic random byte generator
 rand=SystemRandom() # create strong random number generator
 
