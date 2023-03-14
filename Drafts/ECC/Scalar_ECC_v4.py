@@ -2,9 +2,11 @@ from Crypto.PublicKey import ECC
 
 # Generate a private key
 private_key = ECC.generate(curve='P-256')
+print(f"private key: {private_key}")
 
 # Get the public key
 public_key = private_key.public_key()
+print(f"public key: {public_key}")
 
 # Generate a random scalar to multiply with the private key
 scalar = ECC.generate(curve='P-256')
