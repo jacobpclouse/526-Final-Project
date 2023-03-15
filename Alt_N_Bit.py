@@ -21,6 +21,9 @@ from cryptography.hazmat.primitives.asymmetric import ec # For generating initia
 # SECP256K1 elliptic curve
 curve = ec.SECP256K1()
 
+# Array of hashes - encryption (basically we can store all the hashes used for h1 in this for decryption) - NOT IMPLIMENTED YET!!!
+encryption_hashes = []
+
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Functions
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -65,6 +68,23 @@ def encrypt_message(MSN, ENCK):
     if chooseDebugMode == 'YES':
         print(f"data_to_hash: {data_to_hash}")
         print(f"NEW H1: {H1}")
+
+
+    # Step 5: Encrypt n blocks of MSN using different keys
+    n = len(MSN) // len(BLK[0])
+    encrypted_blocks = []
+    for i in range(n):
+        key = H1
+        if i > 0:
+            key = hashlib.sha256(key).digest()
+        block = MSN[i*len(BLK[0]):(i+1)*len(BLK[0])]
+        cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
+        encryptor = cipher.encryptor()
+        encrypted_block = encryptor.update(block) + encryptor.finalize()
+        encrypted_blocks.append(encrypted_block)
+        H1 = hashlib.sha256(encrypted_block, H1).digest()
+
+    return b''.join(encrypted_blocks)
 
 
 
@@ -145,3 +165,6 @@ else:
 # Grabbing the ENCK
 ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 encrypted_message = encrypt_message(MSN, ENCK)
+
+if chooseDebugMode == 'YES':
+    print(f"Final result of encryption: {encrypted_message}")
