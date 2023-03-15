@@ -71,6 +71,7 @@ def encrypt_message(MSN, ENCK):
 
 
     # Step 5: Encrypt n blocks of MSN using different keys -- THIS RETURNS EMPTY VALUES - WHYYY???
+    # alright, we need to add some extra text to get it up over the the block size here (maybe add the block data to the end of the message?)
     print(f'Len(MSN): {len(MSN)}')
     print(f'Len(BLK[0]): {len(BLK[0])}')
     n = len(MSN) // len(BLK[0])
