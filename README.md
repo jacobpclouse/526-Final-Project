@@ -29,3 +29,4 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - How to find size of an object in Python?: https://www.geeksforgeeks.org/how-to-find-size-of-an-object-in-python/
 - hashlib — Secure hashes and message digests: https://docs.python.org/3/library/hashlib.html
 - Convert input () to bytes in Python 3? [duplicate]: https://stackoverflow.com/questions/50997921/convert-input-to-bytes-in-python-3
+- Can anyone identify this encoding? [ASCII]: https://stackoverflow.com/questions/26802581/can-anyone-identify-this-encoding

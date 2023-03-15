@@ -39,8 +39,17 @@ def encrypt_message(MSN, ENCK):
     print(f"ENCK: {ENCK}")
     # Step 1: Hash message and store in e
     e = hashlib.sha256(MSN).digest()
-
     print(f"e var: {e}")
+
+    # Step 2: Hash ENCK and store in H1
+    # ENCK_bytes = ENCK.to_bytes(32, 'big') # already looks like the ENCK is in bytes (ie: ascii and hex)
+    H1 = hashlib.sha256(ENCK).digest()
+    print(f"H1: {H1}") 
+
+    # Step 3: Encrypt e with ENCK and store in BLK[0]
+    block_size = len(ENCK)
+    print(f"Block Size: {block_size}") # looks like block size will be 32... should we adjust this?
+
 
 
 # --- Function to print our logo ---
@@ -83,8 +92,9 @@ print('Receiver private key:', receiver_private_key.private_numbers().private_va
 print('Receiver public key:', receiver_public_key.public_numbers().x)
 
 
-# Encrypt message "Hello, world!" with ENCK
-# HAVE THE USER GET THE OPTION TO INPUT MSN
-MSN = b'Hello, world!'
+# Encrypt message defined by the user with ENCK
+UserInput = input("Please give me data to encode: ")
+MSN = UserInput.encode()
+# MSN = b'Hello, world!' # This was the original test input - Encrypt message "Hello, world!" with ENCK
 ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 encrypted_message = encrypt_message(MSN, ENCK)
