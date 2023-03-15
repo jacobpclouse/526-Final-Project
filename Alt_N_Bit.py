@@ -35,21 +35,28 @@ def generate_key_pair():
 
 # --- Function to Encrypt message using ENCK ---
 def encrypt_message(MSN, ENCK):
-    print(f"MSN: {MSN}")
-    print(f"ENCK: {ENCK}")
     # Step 1: Hash message and store in e
     e = hashlib.sha256(MSN).digest()
-    print(f"e var: {e}")
+    if chooseDebugMode == 'YES':
+        print(f"MSN: {MSN}")
+        print(f"ENCK: {ENCK}")
+        print(f"e var: {e}")
 
     # Step 2: Hash ENCK and store in H1
     # ENCK_bytes = ENCK.to_bytes(32, 'big') # already looks like the ENCK is in bytes (ie: ascii and hex)
     H1 = hashlib.sha256(ENCK).digest()
-    print(f"H1: {H1}") 
+    if chooseDebugMode == 'YES':
+        print(f"H1: {H1}") 
 
     # Step 3: Encrypt e with ENCK and store in BLK[0]
     block_size = len(ENCK)
-    print(f"Block Size: {block_size}") # looks like block size will be 32... should we adjust this?
-
+    if chooseDebugMode == 'YES':
+        print(f"Block Size: {block_size}") # looks like block size will be 32... should we adjust this?
+    BLK = [e[i:i+block_size] for i in range(0, len(e), block_size)]
+    BLK[0] = bytes([BLK[0][i] ^ ENCK[i] for i in range(block_size)])
+    if chooseDebugMode == 'YES':
+        print(f"BLK: {BLK}")
+        print(f"BLK[0]: {BLK[0]}")
 
 
 # --- Function to print our logo ---
@@ -84,12 +91,35 @@ def write_out_data_to_file(output_file_name, data):
 
 # Program Startup
 our_Logo()
+
+
+# Debug mode setup - if yes, enable print outs, if no then no print outs should be shown
+chooseDebugMode = input("Debug Mode - Do you want console print outs?: YES or NO? ").upper()
+print(chooseDebugMode)
+print('\n')
+
+# Catch statement to prevent invalid selections
+while chooseDebugMode == '':
+    chooseDebugMode = input("Can't be left blank, please input either YES or NO: ")
+'''
+# execute if they don't want to use the default data, user will input the test data and it will be encoded
+if chooseDebugMode.upper() == 'YES':
+    print("User Providing Test Data.")
+    UserInput = input("Please give me data to encode: ")
+    MSN = UserInput.encode()
+
+# if they do want to use the default data (or nonsense), then we just will use the default data
+else:
+    print("Using Default Test Data.")
+    MSN = b'Hello, world!' # This was the original test input - Encrypt message "Hello, world!" with ENCK
+'''
 # Generate key pairs & Display them
 sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
-print('Sender private key:', sender_private_key.private_numbers().private_value)
-print('Sender public key:', sender_public_key.public_numbers().x)
-print('Receiver private key:', receiver_private_key.private_numbers().private_value)
-print('Receiver public key:', receiver_public_key.public_numbers().x)
+if chooseDebugMode == 'YES':
+    print('Sender private key:', sender_private_key.private_numbers().private_value)
+    print('Sender public key:', sender_public_key.public_numbers().x)
+    print('Receiver private key:', receiver_private_key.private_numbers().private_value)
+    print('Receiver public key:', receiver_public_key.public_numbers().x)
 
 # Encrypt message defined by the user with ENCK
 # Define if you want this to use sample data or if you want to define input:
