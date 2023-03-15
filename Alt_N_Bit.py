@@ -91,10 +91,28 @@ print('Sender public key:', sender_public_key.public_numbers().x)
 print('Receiver private key:', receiver_private_key.private_numbers().private_value)
 print('Receiver public key:', receiver_public_key.public_numbers().x)
 
-
 # Encrypt message defined by the user with ENCK
-UserInput = input("Please give me data to encode: ")
-MSN = UserInput.encode()
-# MSN = b'Hello, world!' # This was the original test input - Encrypt message "Hello, world!" with ENCK
+# Define if you want this to use sample data or if you want to define input:
+chooseMSN = input("Do you want to use the default MSN test data? : YES or NO? ")
+print(chooseMSN.upper())
+print('\n')
+
+# Catch statement to prevent invalid selections
+while chooseMSN == '':
+    chooseMSN = input("Can't be left blank, please input either YES or NO: ")
+
+# execute if they don't want to use the default data, user will input the test data and it will be encoded
+if chooseMSN.upper() == 'NO':
+    print("User Providing Test Data.")
+    UserInput = input("Please give me data to encode: ")
+    MSN = UserInput.encode()
+
+# if they do want to use the default data (or nonsense), then we just will use the default data
+else:
+    print("Using Default Test Data.")
+    MSN = b'Hello, world!' # This was the original test input - Encrypt message "Hello, world!" with ENCK
+
+
+# Grabbing the ENCK
 ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 encrypted_message = encrypt_message(MSN, ENCK)
