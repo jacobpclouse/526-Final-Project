@@ -70,19 +70,27 @@ def encrypt_message(MSN, ENCK):
         print(f"NEW H1: {H1}")
 
 
-    # Step 5: Encrypt n blocks of MSN using different keys
+    # Step 5: Encrypt n blocks of MSN using different keys -- THIS RETURNS EMPTY VALUES - WHYYY???
+    print(f'Len(MSN): {len(MSN)}')
+    print(f'Len(BLK[0]): {len(BLK[0])}')
     n = len(MSN) // len(BLK[0])
+    print(f"what is n: {n}") # n is 0, its not hitting the for loop...
     encrypted_blocks = []
     for i in range(n):
         key = H1
+        print(f"key: {key}")
         if i > 0:
             key = hashlib.sha256(key).digest()
+            print(f"Hashlib key: {key}")
         block = MSN[i*len(BLK[0]):(i+1)*len(BLK[0])]
         cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
         encryptor = cipher.encryptor()
         encrypted_block = encryptor.update(block) + encryptor.finalize()
         encrypted_blocks.append(encrypted_block)
-        H1 = hashlib.sha256(encrypted_block, H1).digest()
+        new_data_to_hash_loop = encrypted_block + H1
+        H1 = hashlib.sha256(new_data_to_hash_loop).digest()
+        # H1 = hashlib.sha256(encrypted_block, H1).digest()
+    print(f"Encrypted Blocks: {encrypted_blocks}")
 
     return b''.join(encrypted_blocks)
 
@@ -167,4 +175,4 @@ ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 encrypted_message = encrypt_message(MSN, ENCK)
 
 if chooseDebugMode == 'YES':
-    print(f"Final result of encryption: {encrypted_message}")
+    print(f"Final result of encryption: {encrypted_message.hex()}")
