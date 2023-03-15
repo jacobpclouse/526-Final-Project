@@ -58,7 +58,9 @@ def encrypt_message(MSN, ENCK):
         print(f"BLK[0]: {BLK[0]}")
 
     # Step 4: Hash e using H1 as initialization vector and store in H1
-    H1 = hashlib.sha256(e, H1).digest()
+    H1 = hashlib.sha256(e, H1).digest() #ERRORING - how do we hash two variables?
+    if chooseDebugMode == 'YES':
+        print(f"NEW H1: {H1}")
 
 
 # --- Function to print our logo ---
