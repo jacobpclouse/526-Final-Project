@@ -43,7 +43,6 @@ def encrypt_message(MSN, ENCK):
         print(f"e var: {e}")
 
     # Step 2: Hash ENCK and store in H1
-    # ENCK_bytes = ENCK.to_bytes(32, 'big') # already looks like the ENCK is in bytes (ie: ascii and hex)
     H1 = hashlib.sha256(ENCK).digest()
     if chooseDebugMode == 'YES':
         print(f"H1: {H1}") 
@@ -57,6 +56,9 @@ def encrypt_message(MSN, ENCK):
     if chooseDebugMode == 'YES':
         print(f"BLK: {BLK}")
         print(f"BLK[0]: {BLK[0]}")
+
+    # Step 4: Hash e using H1 as initialization vector and store in H1
+    H1 = hashlib.sha256(e, H1).digest()
 
 
 # --- Function to print our logo ---
@@ -89,7 +91,7 @@ def write_out_data_to_file(output_file_name, data):
 # MAIN 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-# Program Startup
+# Program Startup -- Logo Print Out shows that it is working
 our_Logo()
 
 
@@ -98,21 +100,10 @@ chooseDebugMode = input("Debug Mode - Do you want console print outs?: YES or NO
 print(chooseDebugMode)
 print('\n')
 
-# Catch statement to prevent invalid selections
+    # Catch statement to prevent invalid selections
 while chooseDebugMode == '':
     chooseDebugMode = input("Can't be left blank, please input either YES or NO: ")
-'''
-# execute if they don't want to use the default data, user will input the test data and it will be encoded
-if chooseDebugMode.upper() == 'YES':
-    print("User Providing Test Data.")
-    UserInput = input("Please give me data to encode: ")
-    MSN = UserInput.encode()
 
-# if they do want to use the default data (or nonsense), then we just will use the default data
-else:
-    print("Using Default Test Data.")
-    MSN = b'Hello, world!' # This was the original test input - Encrypt message "Hello, world!" with ENCK
-'''
 # Generate key pairs & Display them
 sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
 if chooseDebugMode == 'YES':
@@ -127,17 +118,17 @@ chooseMSN = input("Do you want to use the default MSN test data? : YES or NO? ")
 print(chooseMSN.upper())
 print('\n')
 
-# Catch statement to prevent invalid selections
+    # Catch statement to prevent invalid selections
 while chooseMSN == '':
     chooseMSN = input("Can't be left blank, please input either YES or NO: ")
 
-# execute if they don't want to use the default data, user will input the test data and it will be encoded
+    # execute if they don't want to use the default data, user will input the test data and it will be encoded
 if chooseMSN.upper() == 'NO':
     print("User Providing Test Data.")
     UserInput = input("Please give me data to encode: ")
     MSN = UserInput.encode()
 
-# if they do want to use the default data (or nonsense), then we just will use the default data
+    # if they do want to use the default data (or nonsense), then we just will use the default data
 else:
     print("Using Default Test Data.")
     MSN = b'Hello, world!' # This was the original test input - Encrypt message "Hello, world!" with ENCK
