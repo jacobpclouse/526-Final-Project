@@ -1,0 +1,16 @@
+Test string was: b'Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!'
+
+
+
+b"\xc7'\xdc\xd0\x1eQ\xa3\xf9\xce8A\x18\x0bmk\xf8\xfc\xbbn\x07\xe1\x99\x9f\xa6TP\x1a\xf6\xed\xf6S\x1cu\xaa\x12\x0b\x85h\xcc4>\x10\xd1\x19\x94L'Kg\xb6s\t\x87\x15]rY\xa2w\x99\xa0r\xdc5mfQ\x7fM!!\xfe$i\x06\xda\xbf\xf7nF/\xf4=tX\xb9\xdd\xfd9\x18\xdc6.\xad y"
+
+
+
+Encrypted Blocks: [b"\xc7'\xdc\xd0\x1eQ\xa3\xf9\xce8A\x18\x0bmk\xf8\xfc\xbbn\x07\xe1\x99\x9f\xa6TP\x1a\xf6\xed\xf6S\x1c", b"u\xaa\x12\x0b\x85h\xcc4>\x10\xd1\x19\x94L'Kg\xb6s\t\x87\x15]rY\xa2w\x99\xa0r\xdc5", b'mfQ\x7fM!!\xfe$i\x06\xda\xbf\xf7nF/\xf4=tX\xb9\xdd\xfd9\x18\xdc6.\xad y']
+
+
+
+
+Final result of encryption: c727dcd01e51a3f9ce3841180b6d6bf8fcbb6e07e1999fa654501af6edf6531c75aa120b8568cc343e10d119944c274b67b6730987155d7259a27799a072dc356d66517f4d2121fe246906dabff76e462ff43d7458b9ddfd3918dc362ead2079
+
+Final Read: c727dcd01e51a3f9ce3841180b6d6bf8fcbb6e07e1999fa654501af6edf6531c75aa120b8568cc343e10d119944c274b67b6730987155d7259a27799a072dc356d66517f4d2121fe246906dabff76e462ff43d7458b9ddfd3918dc362ead2079

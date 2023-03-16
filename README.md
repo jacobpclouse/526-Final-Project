@@ -31,3 +31,4 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Convert input () to bytes in Python 3? [duplicate]: https://stackoverflow.com/questions/50997921/convert-input-to-bytes-in-python-3
 - Can anyone identify this encoding? [ASCII]: https://stackoverflow.com/questions/26802581/can-anyone-identify-this-encoding
 - how to hash two arguments: https://stackoverflow.com/questions/57902680/how-to-hash-two-arguments
+- pickle — Python object serialization (for storing byte arrays): https://docs.python.org/3/library/pickle.html
