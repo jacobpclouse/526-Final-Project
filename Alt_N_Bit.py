@@ -14,6 +14,8 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec # For generating initial ec key pair
 import pickle # this is used to store byte arrays and then get the data back out
+import secrets # for padding MSN up to block size
+import string # for padding MSN up to block size
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Variables & Setup
@@ -150,14 +152,33 @@ def decrypt_message(encrypted_message, ENCK):
     return b''.join([decrypted_first_block] + decrypted_blocks)
 
 
+# --- Function to add random padding to anemic inputs (if they are less than desired length) ---
+def do_we_need_padding(messageToAnalyze,targetBlockSizeInteger):
+    # Usually targetBlockSizeInteger will be like 32
+    if (len(messageToAnalyze) < targetBlockSizeInteger):
+        numberOfCharsLeft = targetBlockSizeInteger - len(messageToAnalyze) # figure out how many chars we are short by
+        print(f"We need to pad {numberOfCharsLeft} characters!")
+        # using secrets.choices() - generating random strings
+        toConcatBoi = ''.join(secrets.choice(string.ascii_letters + string.digits)
+            for i in range(numberOfCharsLeft))
+        messageToAnalyze = messageToAnalyze + bytes(toConcatBoi,encoding='utf8') # updating orig data by concat
+        return messageToAnalyze # return new message with concatonated data
+    else:
+        print("We don't need padding...")
+        return messageToAnalyze # don't need to adjust, we can leave it as it is
+
+
+
 # --- Function to print our logo ---
 def our_Logo():
+    run_at_time = defang_datetime()
     print('Code designed, written & tested by:')
     print('  |                                _ )            |         |          ')
     print('  |      |   |  __ \    _` |       _ \ \          |   _` |  |  /   _ \ ')
     print('  |      |   |  |   |  (   |      ( `  <      \   |  (   |    <    __/ ')
     print(' _____| \__,_| _|  _| \__,_|     \___/\/     \___/  \__,_| _|\_\ \___| ')
     print('Built for ICSI 526 - Spring 2023')
+    print(f'Started at: {run_at_time}')
 
 # --- Function to Defang date time ---
 def defang_datetime():
@@ -227,12 +248,21 @@ if chooseMSN.upper() == 'NO':
     # if they do want to use the default data (or nonsense), then we just will use the default data
 else:
     print("Using Default Test Data.")
-    MSN = b'Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!'
-    # MSN = b'Hello, world!' # NEEDS TO BE LONGER - USE AUTOKEY This was the original test input - Encrypt message "Hello, world!" with ENCK
+    # MSN = b'Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!'
+    MSN = b'Hello, world!' # NEEDS TO BE LONGER - USE AUTOKEY This was the original test input - Encrypt message "Hello, world!" with ENCK
 
-''' GETTING ENCRYPTION DONE '''
+
 # Grabbing the ENCK
 ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
+if chooseDebugMode == 'YES':
+    print(f'LENGTH OF BLOCK SIZE: {len(ENCK)}')
+# If message is shorter than block size, we will adjust it
+MSN = do_we_need_padding(MSN,len(ENCK))
+print(MSN)
+print("\n")
+
+
+''' GETTING ENCRYPTION DONE '''
 encrypted_message_val = encrypt_message(MSN, ENCK)
 encrypt_message_hex = encrypted_message_val.hex()
 

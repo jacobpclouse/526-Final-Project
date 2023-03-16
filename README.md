@@ -16,8 +16,9 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - [x] How do we determine the block size of our encryption? - measure size of ENCK
 - [ ] How to get the data back after decryption(how do we even do that with the hashing?)
 - [ ] Need adjustable block size (currently it stays at 32)
-- [ ] Need function to adding padding to the test data if it is smaller than the block size (it will just give you an empty result and cause the program to fail during decryption - maybe autokey? Make it random)
+- [x] Need function to adding padding to the test data if it is smaller than the block size (it will just give you an empty result and cause the program to fail during decryption - maybe autokey? Make it random) - Done, implimented just after we get size of ENCK
 - [ ] Finally, Add the extra PEP at the end of encryption and decryption
+- [ ] Need to port this to a web app (we can wip up a very quick Flask App)
 
 ## Resources:
 - Python hash() method: https://www.geeksforgeeks.org/python-hash-method/
@@ -36,3 +37,5 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Can anyone identify this encoding? [ASCII]: https://stackoverflow.com/questions/26802581/can-anyone-identify-this-encoding
 - how to hash two arguments: https://stackoverflow.com/questions/57902680/how-to-hash-two-arguments
 - pickle — Python object serialization (for storing byte arrays): https://docs.python.org/3/library/pickle.html
+- Python | Generate random string of given length: https://www.geeksforgeeks.org/python-generate-random-string-of-given-length/
+- TypeError: string argument without an encoding: https://stackoverflow.com/questions/51961386/typeerror-string-argument-without-an-encoding
