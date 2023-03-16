@@ -32,6 +32,15 @@ encryption_hashes = []
 # Functions
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+# --- Function to Generate sender and receiver key pairs ---
+def generate_key_pair():
+    sender_private_key = ec.generate_private_key(curve)
+    sender_public_key = sender_private_key.public_key()
+    receiver_private_key = ec.generate_private_key(curve)
+    receiver_public_key = receiver_private_key.public_key()
+    return sender_private_key, sender_public_key, receiver_private_key, receiver_public_key
+
+
 # --- Function to Encrypt message using ENCK ---
 def encrypt_message(MSN, ENCK):
     # Step 1: Hash message and store in e
@@ -92,35 +101,41 @@ def encrypt_message(MSN, ENCK):
     return b''.join(encrypted_blocks)
 
 
-# --- Function to Generate sender and receiver key pairs ---
-def generate_key_pair():
-    sender_private_key = ec.generate_private_key(curve)
-    sender_public_key = sender_private_key.public_key()
-    receiver_private_key = ec.generate_private_key(curve)
-    receiver_public_key = receiver_private_key.public_key()
-    return sender_private_key, sender_public_key, receiver_private_key, receiver_public_key
-
-
-# --- Function to Decrypt message using ENCK --- ## NEED TO TEST!!!!
+# --- Function to Decrypt message using ENCK --- ## NEED TO TEST!!!! 
+# Do we feed in the Same ENCK from before encryption? It shouldn't change here
 def decrypt_message(encrypted_message, ENCK):
     # Step 1: Hash ENCK and store in H1
     H1 = hashlib.sha256(ENCK).digest()
+    if chooseDebugMode == 'YES':
+        print(f"encrypted_message: {encrypted_message}")
+        print(f"ENCK: {ENCK}")
+        print(f"H1 var: {H1}")
+    
 
     # Step 2: Decrypt the first block of the message
     block_size = len(ENCK)
     first_block = encrypted_message[:block_size]
     decrypted_first_block = bytes([first_block[i] ^ ENCK[i] for i in range(block_size)])
+    if chooseDebugMode == 'YES':
+        print(f"block_size: {block_size}")
+        print(f"first_block: {first_block}")
+        print(f"decrypted_first_block: {decrypted_first_block}")
 
     # Step 3: Hash the decrypted first block using H1 as initialization vector and update H1
     data_to_hash = decrypted_first_block + H1
     H1 = hashlib.sha256(data_to_hash).digest()
+    if chooseDebugMode == 'YES':
+        print(f"data_to_hash: {data_to_hash}")
+        print(f"Updated H1: {H1}")
 
     # Step 4: Decrypt the remaining blocks of the message using the updated H1 as the key
     decrypted_blocks = []
     for i in range(1, len(encrypted_message) // block_size):
         key = H1
+        print(f"key: {key}")
         if i > 1:
             key = hashlib.sha256(key).digest()
+            print(f"Hashlib key: {key}")
         block = encrypted_message[i*block_size:(i+1)*block_size]
         cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
         decryptor = cipher.decryptor()
@@ -128,6 +143,8 @@ def decrypt_message(encrypted_message, ENCK):
         decrypted_blocks.append(decrypted_block)
         data_to_hash = decrypted_block + H1
         H1 = hashlib.sha256(data_to_hash).digest()
+    
+    print(f"[decrypted_first_block] + decrypted_blocks: {[decrypted_first_block] + decrypted_blocks}")
 
     # Step 5: Concatenate the decrypted blocks and return the original message
     return b''.join([decrypted_first_block] + decrypted_blocks)
@@ -213,7 +230,7 @@ else:
     MSN = b'Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!'
     # MSN = b'Hello, world!' # NEEDS TO BE LONGER - USE AUTOKEY This was the original test input - Encrypt message "Hello, world!" with ENCK
 
-
+''' GETTING ENCRYPTION DONE '''
 # Grabbing the ENCK
 ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 encrypted_message_val = encrypt_message(MSN, ENCK)
