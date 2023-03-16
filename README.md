@@ -17,6 +17,7 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - [ ] How to get the data back after decryption(how do we even do that with the hashing?)
 - [ ] Need adjustable block size (currently it stays at 32)
 - [ ] Need function to adding padding to the test data if it is smaller than the block size (it will just give you an empty result and cause the program to fail during decryption - maybe autokey? Make it random)
+- [ ] Finally, Add the extra PEP at the end of encryption and decryption
 
 ## Resources:
 - Python hash() method: https://www.geeksforgeeks.org/python-hash-method/
