@@ -6,16 +6,17 @@
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Importing Libraries / Modules 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-import datetime
+import datetime # used to grab the datetime in logo printout
 import os
-import hashlib
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes, serialization
+import hashlib # Used in Sha256 hashing
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes # needed for encryption /decryption modules
+from cryptography.hazmat.backends import default_backend # needed for encryption /decryption modules
+from cryptography.hazmat.primitives import hashes, serialization # needed for encryption /decryption modules
 from cryptography.hazmat.primitives.asymmetric import ec # For generating initial ec key pair
 import pickle # this is used to store byte arrays and then get the data back out
 import secrets # for padding MSN up to block size
 import string # for padding MSN up to block size
+import random # adding so we add an arbitrary length to our msg
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Variables & Setup
@@ -157,7 +158,8 @@ def do_we_need_padding(messageToAnalyze,targetBlockSizeInteger):
     # Usually targetBlockSizeInteger will be like 32
     if (len(messageToAnalyze) < targetBlockSizeInteger):
         numberOfCharsLeft = targetBlockSizeInteger - len(messageToAnalyze) # figure out how many chars we are short by
-        print(f"We need to pad {numberOfCharsLeft} characters!")
+        print(f"We need to pad at least {numberOfCharsLeft} characters!")
+        numberOfCharsLeft = numberOfCharsLeft + (random.randint(0,200)) # incriment by a random value, that way it won't be exactly the same as our ENCK
         # using secrets.choices() - generating random strings
         toConcatBoi = ''.join(secrets.choice(string.ascii_letters + string.digits)
             for i in range(numberOfCharsLeft))
