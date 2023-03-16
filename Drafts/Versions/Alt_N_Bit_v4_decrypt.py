@@ -32,6 +32,70 @@ encryption_hashes = []
 # Functions
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+''' MAIN LOOP ENCRYPTION'''
+# --- Function that kicks of the encryption routine ---
+def main_loop_encryption():
+    # Debug mode setup - if yes, enable print outs, if no then no print outs should be shown
+    chooseDebugMode = input("Debug Mode - Do you want console print outs?: YES or NO? ").upper()
+    print(chooseDebugMode)
+    print('\n')
+
+    # Catch statement to prevent invalid selections
+    while chooseDebugMode == '':
+        chooseDebugMode = input("Can't be left blank, please input either YES or NO: ")
+
+    # Generate key pairs & Display them
+    sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+    if chooseDebugMode == 'YES':
+        print('Sender private key:', sender_private_key.private_numbers().private_value)
+        print('Sender public key:', sender_public_key.public_numbers().x)
+        print('Receiver private key:', receiver_private_key.private_numbers().private_value)
+        print('Receiver public key:', receiver_public_key.public_numbers().x)
+
+    # Encrypt message defined by the user with ENCK
+    # Define if you want this to use sample data or if you want to define input:
+    chooseMSN = input("Do you want to use the default MSN test data? : YES or NO? ")
+    print(chooseMSN.upper())
+    print('\n')
+
+        # Catch statement to prevent invalid selections
+    while chooseMSN == '':
+        chooseMSN = input("Can't be left blank, please input either YES or NO: ")
+
+        # execute if they don't want to use the default data, user will input the test data and it will be encoded
+    if chooseMSN.upper() == 'NO':
+        print("User Providing Test Data.")
+        UserInput = input("Please give me data to encode: ")
+        MSN = UserInput.encode()
+
+        # if they do want to use the default data (or nonsense), then we just will use the default data
+    else:
+        print("Using Default Test Data.")
+        MSN = b'Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!'
+        # MSN = b'Hello, world!' # NEEDS TO BE LONGER - USE AUTOKEY This was the original test input - Encrypt message "Hello, world!" with ENCK
+
+
+    # Grabbing the ENCK
+    ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
+    encrypted_message_val = encrypt_message(MSN, ENCK)
+    encrypt_message_hex = encrypted_message_val.hex()
+
+    if chooseDebugMode == 'YES':
+        print(f"Final result of encryption: {encrypt_message_hex}")
+
+    # write to file: (WILL NOT WORK IF IT IS EMPTY)
+    write_out_data_to_pickle("encryption_normal",encrypted_message_val)
+
+    ''' Now for Decryption '''
+    decryptedBoi = decrypt_message(encrypted_message_val,ENCK)
+    decrypted_HEX_Boi = decryptedBoi.hex()
+    print(f"FINAL DECRYPTION: {decryptedBoi}")
+    print("\n")
+    print(f"FINAL HEX DECRYPTION: {decrypted_HEX_Boi}")
+
+
+
+
 # --- Function to Encrypt message using ENCK ---
 def encrypt_message(MSN, ENCK):
     # Step 1: Hash message and store in e
@@ -92,6 +156,12 @@ def encrypt_message(MSN, ENCK):
     return b''.join(encrypted_blocks)
 
 
+''' MAIN LOOP DECRYPTION'''
+# --- Function that kicks of the encryption routine ---
+def main_loop_decryption():
+    print("decrypt boi")
+
+
 # --- Function to Generate sender and receiver key pairs ---
 def generate_key_pair():
     sender_private_key = ec.generate_private_key(curve)
@@ -99,6 +169,7 @@ def generate_key_pair():
     receiver_private_key = ec.generate_private_key(curve)
     receiver_public_key = receiver_private_key.public_key()
     return sender_private_key, sender_public_key, receiver_private_key, receiver_public_key
+
 
 
 # --- Function to Decrypt message using ENCK --- ## NEED TO TEST!!!!
@@ -172,63 +243,21 @@ def read_data_from_pickle(input_file_name):
 # Program Startup -- Logo Print Out shows that it is working
 our_Logo()
 
-
-
-# Debug mode setup - if yes, enable print outs, if no then no print outs should be shown
-chooseDebugMode = input("Debug Mode - Do you want console print outs?: YES or NO? ").upper()
-print(chooseDebugMode)
-print('\n')
+# User decides if we are gonna use encrypt or decrypt
+encryptOrDecrypt = input("Do you want to ENCRYPT or DECRYPT? ").upper()
 
 # Catch statement to prevent invalid selections
-while chooseDebugMode == '':
-    chooseDebugMode = input("Can't be left blank, please input either YES or NO: ")
+while encryptOrDecrypt == '':
+    encryptOrDecrypt = input("Can't be left blank, please input either ENCRYPT or DECRYPT: ").upper()
 
-# Generate key pairs & Display them
-sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
-if chooseDebugMode == 'YES':
-    print('Sender private key:', sender_private_key.private_numbers().private_value)
-    print('Sender public key:', sender_public_key.public_numbers().x)
-    print('Receiver private key:', receiver_private_key.private_numbers().private_value)
-    print('Receiver public key:', receiver_public_key.public_numbers().x)
+# execute Encryption
+if encryptOrDecrypt == 'ENCRYPT':
+    main_loop_encryption()
 
-# Encrypt message defined by the user with ENCK
-# Define if you want this to use sample data or if you want to define input:
-chooseMSN = input("Do you want to use the default MSN test data? : YES or NO? ")
-print(chooseMSN.upper())
-print('\n')
+# execute Decryption
+elif encryptOrDecrypt == 'DECRYPT':
+    main_loop_decryption()
 
-    # Catch statement to prevent invalid selections
-while chooseMSN == '':
-    chooseMSN = input("Can't be left blank, please input either YES or NO: ")
-
-    # execute if they don't want to use the default data, user will input the test data and it will be encoded
-if chooseMSN.upper() == 'NO':
-    print("User Providing Test Data.")
-    UserInput = input("Please give me data to encode: ")
-    MSN = UserInput.encode()
-
-    # if they do want to use the default data (or nonsense), then we just will use the default data
+# if nonsense, end the script
 else:
-    print("Using Default Test Data.")
-    MSN = b'Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!'
-    # MSN = b'Hello, world!' # NEEDS TO BE LONGER - USE AUTOKEY This was the original test input - Encrypt message "Hello, world!" with ENCK
-
-
-# Grabbing the ENCK
-ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
-encrypted_message_val = encrypt_message(MSN, ENCK)
-encrypt_message_hex = encrypted_message_val.hex()
-
-if chooseDebugMode == 'YES':
-    print(f"Final result of encryption: {encrypt_message_hex}")
-
-# write to file: (WILL NOT WORK IF IT IS EMPTY)
-write_out_data_to_pickle("encryption_normal",encrypted_message_val)
-
-''' Now for Decryption '''
-decryptedBoi = decrypt_message(encrypted_message_val,ENCK)
-decrypted_HEX_Boi = decryptedBoi.hex()
-print(f"FINAL DECRYPTION: {decryptedBoi}")
-print("\n")
-print(f"FINAL HEX DECRYPTION: {decrypted_HEX_Boi}")
-
+    print("Response Not Recognized, Ending Program...")
