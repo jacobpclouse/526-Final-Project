@@ -12,8 +12,11 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 6) Cleanup code, add additional funtionality and potentially GUI
 
 ## Issues:
-- [ ] How do we retrieve a public key and multiply it with our own private key?
-- [ ] How do we determine the block size of our encryption?
+- [x] How do we retrieve a public key and multiply it with our own private key? - see in function 'generate_key_pair'
+- [x] How do we determine the block size of our encryption? - measure size of ENCK
+- [ ] How to get the data back after decryption(how do we even do that with the hashing?)
+- [ ] Need adjustable block size (currently it stays at 32)
+- [ ] Need function to adding padding to the test data if it is smaller than the block size (it will just give you an empty result and cause the program to fail during decryption - maybe autokey? Make it random)
 
 ## Resources:
 - Python hash() method: https://www.geeksforgeeks.org/python-hash-method/
