@@ -21,9 +21,6 @@ from cryptography.hazmat.primitives.asymmetric import ec # For generating initia
 # SECP256K1 elliptic curve
 curve = ec.SECP256K1()
 
-# Debug mode variable
-chooseDebugMode = ''
-
 # Array of hashes - encryption (basically we can store all the hashes used for h1 in this for decryption) - NOT IMPLIMENTED YET!!!
 encryption_hashes = []
 
@@ -31,56 +28,13 @@ encryption_hashes = []
 # Functions
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-''' MAIN LOOP ENCRYPTION'''
-# --- Function that kicks of the encryption routine ---
-def main_loop_encryption():
-    # Debug mode setup - if yes, enable print outs, if no then no print outs should be shown
-    chooseDebugMode = input("Debug Mode - Do you want console print outs?: YES or NO? ").upper()
-    print(chooseDebugMode)
-    print('\n')
-
-    # Catch statement to prevent invalid selections
-    while chooseDebugMode == '':
-        chooseDebugMode = input("Can't be left blank, please input either YES or NO: ")
-
-    # Generate key pairs & Display them
-    sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
-    if chooseDebugMode == 'YES':
-        print('Sender private key:', sender_private_key.private_numbers().private_value)
-        print('Sender public key:', sender_public_key.public_numbers().x)
-        print('Receiver private key:', receiver_private_key.private_numbers().private_value)
-        print('Receiver public key:', receiver_public_key.public_numbers().x)
-
-    # Encrypt message defined by the user with ENCK
-    # Define if you want this to use sample data or if you want to define input:
-    chooseMSN = input("Do you want to use the default MSN test data? : YES or NO? ")
-    print(chooseMSN.upper())
-    print('\n')
-
-        # Catch statement to prevent invalid selections
-    while chooseMSN == '':
-        chooseMSN = input("Can't be left blank, please input either YES or NO: ")
-
-        # execute if they don't want to use the default data, user will input the test data and it will be encoded
-    if chooseMSN.upper() == 'NO':
-        print("User Providing Test Data.")
-        UserInput = input("Please give me data to encode: ")
-        MSN = UserInput.encode()
-
-        # if they do want to use the default data (or nonsense), then we just will use the default data
-    else:
-        print("Using Default Test Data.")
-        MSN = b'Hello, world!' # This was the original test input - Encrypt message "Hello, world!" with ENCK
-
-
-    # Grabbing the ENCK
-    ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
-    encrypted_message = encrypt_message(MSN, ENCK)
-
-    if chooseDebugMode == 'YES':
-        print(f"Final result of encryption: {encrypted_message.hex()}")
-
-
+# --- Function to Generate sender and receiver key pairs ---
+def generate_key_pair():
+    sender_private_key = ec.generate_private_key(curve)
+    sender_public_key = sender_private_key.public_key()
+    receiver_private_key = ec.generate_private_key(curve)
+    receiver_public_key = receiver_private_key.public_key()
+    return sender_private_key, sender_public_key, receiver_private_key, receiver_public_key
 
 # --- Function to Encrypt message using ENCK ---
 def encrypt_message(MSN, ENCK):
@@ -142,20 +96,6 @@ def encrypt_message(MSN, ENCK):
     return b''.join(encrypted_blocks)
 
 
-''' MAIN LOOP DECRYPTION'''
-# --- Function that kicks of the encryption routine ---
-def main_loop_decryption():
-    print("decrypt boi")
-
-
-# --- Function to Generate sender and receiver key pairs ---
-def generate_key_pair():
-    sender_private_key = ec.generate_private_key(curve)
-    sender_public_key = sender_private_key.public_key()
-    receiver_private_key = ec.generate_private_key(curve)
-    receiver_public_key = receiver_private_key.public_key()
-    return sender_private_key, sender_public_key, receiver_private_key, receiver_public_key
-
 
 
 # --- Function to print our logo ---
@@ -191,26 +131,7 @@ def write_out_data_to_file(output_file_name, data):
 # Program Startup -- Logo Print Out shows that it is working
 our_Logo()
 
-# User decides if we are gonna use encrypt or decrypt
-encryptOrDecrypt = input("Do you want to ENCRYPT or DECRYPT? ").upper()
 
-# Catch statement to prevent invalid selections
-while encryptOrDecrypt == '':
-    encryptOrDecrypt = input("Can't be left blank, please input either ENCRYPT or DECRYPT: ").upper()
-
-# execute Encryption
-if encryptOrDecrypt == 'ENCRYPT':
-    main_loop_encryption()
-
-# execute Decryption
-elif encryptOrDecrypt == 'DECRYPT':
-    main_loop_decryption()
-
-# if nonsense, end the script
-else:
-    print("Response Not Recognized, Ending Program...")
-
-'''
 # Debug mode setup - if yes, enable print outs, if no then no print outs should be shown
 chooseDebugMode = input("Debug Mode - Do you want console print outs?: YES or NO? ").upper()
 print(chooseDebugMode)
@@ -256,4 +177,3 @@ encrypted_message = encrypt_message(MSN, ENCK)
 
 if chooseDebugMode == 'YES':
     print(f"Final result of encryption: {encrypted_message.hex()}")
-'''
