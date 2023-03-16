@@ -13,7 +13,6 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec # For generating initial ec key pair
-import pickle # this is used to store byte arrays and then get the data back out
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Variables & Setup
@@ -71,22 +70,15 @@ def main_loop_encryption():
         # if they do want to use the default data (or nonsense), then we just will use the default data
     else:
         print("Using Default Test Data.")
-        MSN = b'Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!'
-        # MSN = b'Hello, world!' # NEEDS TO BE LONGER - USE AUTOKEY This was the original test input - Encrypt message "Hello, world!" with ENCK
+        MSN = b'Hello, world!' # This was the original test input - Encrypt message "Hello, world!" with ENCK
 
 
     # Grabbing the ENCK
     ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
-    encrypted_message_val = encrypt_message(MSN, ENCK)
-    encrypt_message_hex = encrypted_message_val.hex()
+    encrypted_message = encrypt_message(MSN, ENCK)
 
     if chooseDebugMode == 'YES':
-        print(f"Final result of encryption: {encrypt_message_hex}")
-
-    # write to file: (WILL NOT WORK IF IT IS EMPTY)
-    write_out_data_to_pickle("encryption_normal",encrypted_message_val)
-    # write_out_data_to_file("Encryption_hex",encrypt_message_hex)
-
+        print(f"Final result of encryption: {encrypted_message.hex()}")
 
 
 
@@ -185,17 +177,11 @@ def defang_datetime():
     
     return current_datetime
 
-# --- Function that saves array data to a pickle file - ie encrypted chunks ---
-def write_out_data_to_pickle(output_file_name, data_array):
-    with open(f'{output_file_name}.pickle', 'wb') as f:
-        pickle.dump(data_array, f)
-
-# --- Function that reads array data to a pickle file, prints it ---
-def read_data_from_pickle(input_file_name):
-    with open(f'{input_file_name}.pickle', 'rb') as f:
-        loaded_byte_array = pickle.load(f)
-        print(loaded_byte_array)
-
+# --- Function that saves data to a file ---
+def write_out_data_to_file(output_file_name, data):
+    text_file = open(f"WriteOut_{output_file_name}.txt", "w")
+    yeahBoi = text_file.write(data)
+    text_file.close()
 
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -223,3 +209,51 @@ elif encryptOrDecrypt == 'DECRYPT':
 # if nonsense, end the script
 else:
     print("Response Not Recognized, Ending Program...")
+
+'''
+# Debug mode setup - if yes, enable print outs, if no then no print outs should be shown
+chooseDebugMode = input("Debug Mode - Do you want console print outs?: YES or NO? ").upper()
+print(chooseDebugMode)
+print('\n')
+
+    # Catch statement to prevent invalid selections
+while chooseDebugMode == '':
+    chooseDebugMode = input("Can't be left blank, please input either YES or NO: ")
+
+# Generate key pairs & Display them
+sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+if chooseDebugMode == 'YES':
+    print('Sender private key:', sender_private_key.private_numbers().private_value)
+    print('Sender public key:', sender_public_key.public_numbers().x)
+    print('Receiver private key:', receiver_private_key.private_numbers().private_value)
+    print('Receiver public key:', receiver_public_key.public_numbers().x)
+
+# Encrypt message defined by the user with ENCK
+# Define if you want this to use sample data or if you want to define input:
+chooseMSN = input("Do you want to use the default MSN test data? : YES or NO? ")
+print(chooseMSN.upper())
+print('\n')
+
+    # Catch statement to prevent invalid selections
+while chooseMSN == '':
+    chooseMSN = input("Can't be left blank, please input either YES or NO: ")
+
+    # execute if they don't want to use the default data, user will input the test data and it will be encoded
+if chooseMSN.upper() == 'NO':
+    print("User Providing Test Data.")
+    UserInput = input("Please give me data to encode: ")
+    MSN = UserInput.encode()
+
+    # if they do want to use the default data (or nonsense), then we just will use the default data
+else:
+    print("Using Default Test Data.")
+    MSN = b'Hello, world!' # This was the original test input - Encrypt message "Hello, world!" with ENCK
+
+
+# Grabbing the ENCK
+ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
+encrypted_message = encrypt_message(MSN, ENCK)
+
+if chooseDebugMode == 'YES':
+    print(f"Final result of encryption: {encrypted_message.hex()}")
+'''
