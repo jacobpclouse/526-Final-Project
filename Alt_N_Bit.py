@@ -36,6 +36,7 @@ encryption_hashes = []
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # --- Function to Generate sender and receiver key pairs ---
+# This code was sourced from Line 22 of Provable Things encrypted-queries (EC example): https://github.com/provable-things/encrypted-queries/blob/master/tools/encrypted_queries_tools.py 
 def generate_key_pair():
     sender_private_key = ec.generate_private_key(curve)
     sender_public_key = sender_private_key.public_key()
