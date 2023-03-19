@@ -43,3 +43,5 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Provable Things encrypted-queries (EC example): https://github.com/provable-things/encrypted-queries/blob/master/tools/encrypted_queries_tools.py
 - National Institute of Standards and Technology (.gov) | Computer security and the data encryption standard: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nbsspecialpublication500-27.pdf
 - Python – Convert Image to String and vice-versa: https://www.geeksforgeeks.org/python-convert-image-to-string-and-vice-versa/
+- Python PIL | Image.frombytes() Method: https://www.geeksforgeeks.org/python-pil-image-frombytes-method/
+- Python PIL | Image.save() method: https://www.geeksforgeeks.org/python-pil-image-save-method/
