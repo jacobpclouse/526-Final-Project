@@ -36,6 +36,7 @@ encryption_hashes = []
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # --- Function to Generate sender and receiver key pairs ---
+# This code was sourced from Line 22 of Provable Things encrypted-queries (EC example): https://github.com/provable-things/encrypted-queries/blob/master/tools/encrypted_queries_tools.py 
 def generate_key_pair():
     sender_private_key = ec.generate_private_key(curve)
     sender_public_key = sender_private_key.public_key()
@@ -62,6 +63,8 @@ def encrypt_message(MSN, ENCK):
     block_size = len(ENCK)
     if chooseDebugMode == 'YES':
         print(f"Block Size: {block_size}") # looks like block size will be 32... should we adjust this?
+
+    ''' NEED TO ADJUST THIS CODE'''
     BLK = [e[i:i+block_size] for i in range(0, len(e), block_size)]
     BLK[0] = bytes([BLK[0][i] ^ ENCK[i] for i in range(block_size)])
     if chooseDebugMode == 'YES':
