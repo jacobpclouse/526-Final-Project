@@ -40,3 +40,4 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Python | Generate random string of given length: https://www.geeksforgeeks.org/python-generate-random-string-of-given-length/
 - TypeError: string argument without an encoding: https://stackoverflow.com/questions/51961386/typeerror-string-argument-without-an-encoding
 - Provable Things encrypted-queries (EC example): https://github.com/provable-things/encrypted-queries/blob/master/tools/encrypted_queries_tools.py
+- National Institute of Standards and Technology (.gov) | Computer security and the data encryption standard: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nbsspecialpublication500-27.pdf
