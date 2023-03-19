@@ -19,6 +19,7 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - [x] Need function to adding padding to the test data if it is smaller than the block size (it will just give you an empty result and cause the program to fail during decryption - maybe autokey? Make it random) - Done, implimented just after we get size of ENCK
 - [ ] Finally, Add the extra PEP at the end of encryption and decryption
 - [ ] Need to port this to a web app (we can wip up a very quick Flask App)
+- [ ] Need to find way to use image (convert to bits, convert back - function)
 
 ## Resources:
 - Python hash() method: https://www.geeksforgeeks.org/python-hash-method/

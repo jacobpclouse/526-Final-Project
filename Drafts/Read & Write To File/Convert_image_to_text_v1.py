@@ -22,7 +22,6 @@ def imageToBase64(ImageName, ImageExtension):
 ''' DO WE WANT TO HAVE IT SO THAT IT WILL OPEN UP THE BYTES OBJECT AUTOMATICALLY? OR WILL WE ASSUME THAT IT HAS BEEN OPENED OUTSIDE THE PROGRAM?
 ALSO: DO WE WANT THIS TO SAVE IT AS AN IMAGE? '''
 def base64ToImage(inputBase64Bytes):
-# ''' PART 1 above'''
     # Convert the base64 encoded image back to bytes
     decoded_image = base64.b64decode(inputBase64Bytes)
 
@@ -33,10 +32,10 @@ def base64ToImage(inputBase64Bytes):
     img.show()
 
     # # creating a image object (main image) 
-    # im1 = Image.open(img) 
+    im1 = Image.open(img) 
 
     # # save a image using extension
-    # im1 = im1.save("OUTPUTIMAGE.jpg")
+    im1 = im1.save("OUTPUTIMAGE.jpg")
 
 
 
