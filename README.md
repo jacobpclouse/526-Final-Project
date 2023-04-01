@@ -24,6 +24,8 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 ## Resources:
 - Python hash() method: https://www.geeksforgeeks.org/python-hash-method/
 - Python Bitwise Operators (ex: ^): https://www.geeksforgeeks.org/python-bitwise-operators/
+- Python: for loops - for i in range(0,len(list) vs for i in list: https://stackoverflow.com/questions/32930246/python-for-loops-for-i-in-range0-lenlist-vs-for-i-in-list
+- Symmetric encryption: https://cryptography.io/en/latest/hazmat/primitives/symmetric-encryption/
 - hashlib module in Python: https://www.geeksforgeeks.org/hashlib-module-in-python/
 - Public Keys - A unique number generated from your private key: https://learnmeabitcoin.com/beginners/public_keys
 - Elliptic Curve Cryptography (ECC): https://cryptobook.nakov.com/asymmetric-key-ciphers/elliptic-curve-cryptography-ecc
@@ -45,3 +47,4 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Python – Convert Image to String and vice-versa: https://www.geeksforgeeks.org/python-convert-image-to-string-and-vice-versa/
 - Python PIL | Image.frombytes() Method: https://www.geeksforgeeks.org/python-pil-image-frombytes-method/
 - Python PIL | Image.save() method: https://www.geeksforgeeks.org/python-pil-image-save-method/
+- 
