@@ -6,17 +6,18 @@
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Importing Libraries / Modules 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-import datetime # used to grab the datetime in logo printout
+import datetime  # used to grab the datetime in logo printout
 import os
-import hashlib # Used in Sha256 hashing
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes # needed for encryption /decryption modules
-from cryptography.hazmat.backends import default_backend # needed for encryption /decryption modules
-from cryptography.hazmat.primitives import hashes, serialization # needed for encryption /decryption modules
-from cryptography.hazmat.primitives.asymmetric import ec # For generating initial ec key pair
-import pickle # this is used to store byte arrays and then get the data back out
-import secrets # for padding MSN up to block size
-import string # for padding MSN up to block size
-import random # adding so we add an arbitrary length to our msg
+import hashlib  # Used in Sha256 hashing
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, \
+    modes  # needed for encryption /decryption modules
+from cryptography.hazmat.backends import default_backend  # needed for encryption /decryption modules
+from cryptography.hazmat.primitives import hashes, serialization  # needed for encryption /decryption modules
+from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
+import pickle  # this is used to store byte arrays and then get the data back out
+import secrets  # for padding MSN up to block size
+import string  # for padding MSN up to block size
+import random  # adding so we add an arbitrary length to our msg
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Variables & Setup
@@ -28,15 +29,18 @@ curve = ec.SECP256K1()
 # Debug mode variable
 chooseDebugMode = ''
 
-# Array of hashes - encryption (basically we can store all the hashes used for h1 in this for decryption) - NOT IMPLIMENTED YET!!!
+# Array of hashes - encryption (basically we can store all the hashes used for h1 in this for decryption) - NOT
+# IMPLIMENTED YET!!!
 encryption_hashes = []
+
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Functions
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-# --- Function to Generate sender and receiver key pairs ---
-# This code was sourced from Line 22 of Provable Things encrypted-queries (EC example): https://github.com/provable-things/encrypted-queries/blob/master/tools/encrypted_queries_tools.py 
+# --- Function to Generate sender and receiver key pairs --- This code was sourced from Line 22 of Provable Things
+# encrypted-queries (EC example): https://github.com/provable-things/encrypted-queries/blob/master/tools
+# /encrypted_queries_tools.py
 def generate_key_pair():
     sender_private_key = ec.generate_private_key(curve)
     sender_public_key = sender_private_key.public_key()
@@ -45,6 +49,7 @@ def generate_key_pair():
     return sender_private_key, sender_public_key, receiver_private_key, receiver_public_key
 
 
+# todo reverse the hash func for decrypt
 # --- Function to Encrypt message using ENCK ---
 def encrypt_message(MSN, ENCK):
     # Step 1: Hash message and store in e
@@ -57,20 +62,22 @@ def encrypt_message(MSN, ENCK):
     # Step 2: Hash ENCK and store in H1
     H1 = hashlib.sha256(ENCK).digest()
     if chooseDebugMode == 'YES':
-        print(f"H1: {H1}") 
+        print(f"H1: {H1}")
 
-    # Step 3: Encrypt e with ENCK and store in BLK[0]
+        # Step 3: Encrypt e with ENCK and store in BLK[0]
     block_size = len(ENCK)
     if chooseDebugMode == 'YES':
-        print(f"Block Size: {block_size}") # looks like block size will be 32... should we adjust this?
+        print(f"Block Size: {block_size}")  # looks like block size will be 32... should we adjust this?
 
     ''' NEED TO ADJUST THIS CODE'''
-    BLK = [e[i:i+block_size] for i in range(0, len(e), block_size)]
+    # todo block size adjustable
+    BLK = [e[i:i + block_size] for i in range(0, len(e), block_size)]
     BLK[0] = bytes([BLK[0][i] ^ ENCK[i] for i in range(block_size)])
     if chooseDebugMode == 'YES':
         print(f"BLK: {BLK}")
         print(f"BLK[0]: {BLK[0]}")
 
+    # todo hash is debug this
     # Step 4: Hash e using H1 as initialization vector and store in H1
     # H1 = hashlib.sha256(e, H1).digest() #ERRORING - how do we hash two variables? ****
     # Concatenate e and H1 before hashing
@@ -80,13 +87,12 @@ def encrypt_message(MSN, ENCK):
         print(f"data_to_hash: {data_to_hash}")
         print(f"NEW H1: {H1}")
 
-
     # Step 5: Encrypt n blocks of MSN using different keys -- THIS RETURNS EMPTY VALUES - WHYYY???
     # alright, we need to add some extra text to get it up over the the block size here (maybe add the block data to the end of the message?)
     print(f'Len(MSN): {len(MSN)}')
     print(f'Len(BLK[0]): {len(BLK[0])}')
     n = len(MSN) // len(BLK[0])
-    print(f"what is n: {n}") # n is 0, its not hitting the for loop...
+    print(f"what is n: {n}")  # n is 0, its not hitting the for loop...
     encrypted_blocks = []
     for i in range(n):
         key = H1
@@ -94,7 +100,7 @@ def encrypt_message(MSN, ENCK):
         if i > 0:
             key = hashlib.sha256(key).digest()
             print(f"Hashlib key: {key}")
-        block = MSN[i*len(BLK[0]):(i+1)*len(BLK[0])]
+        block = MSN[i * len(BLK[0]):(i + 1) * len(BLK[0])]
         cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
         encryptor = cipher.encryptor()
         encrypted_block = encryptor.update(block) + encryptor.finalize()
@@ -109,6 +115,7 @@ def encrypt_message(MSN, ENCK):
 
 # --- Function to Decrypt message using ENCK --- ## NEED TO TEST!!!! 
 # Do we feed in the Same ENCK from before encryption? It shouldn't change here
+#todo reverse hash and convert back to utf8
 def decrypt_message(encrypted_message, ENCK):
     # Step 1: Hash ENCK and store in H1
     H1 = hashlib.sha256(ENCK).digest()
@@ -116,7 +123,6 @@ def decrypt_message(encrypted_message, ENCK):
         print(f"encrypted_message: {encrypted_message}")
         print(f"ENCK: {ENCK}")
         print(f"H1 var: {H1}")
-    
 
     # Step 2: Decrypt the first block of the message
     block_size = len(ENCK)
@@ -142,36 +148,37 @@ def decrypt_message(encrypted_message, ENCK):
         if i > 1:
             key = hashlib.sha256(key).digest()
             print(f"Hashlib key: {key}")
-        block = encrypted_message[i*block_size:(i+1)*block_size]
+        block = encrypted_message[i * block_size:(i + 1) * block_size]
         cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
         decryptor = cipher.decryptor()
         decrypted_block = decryptor.update(block) + decryptor.finalize()
         decrypted_blocks.append(decrypted_block)
         data_to_hash = decrypted_block + H1
         H1 = hashlib.sha256(data_to_hash).digest()
-    
+
     print(f"[decrypted_first_block] + decrypted_blocks: {[decrypted_first_block] + decrypted_blocks}")
 
     # Step 5: Concatenate the decrypted blocks and return the original message
     return b''.join([decrypted_first_block] + decrypted_blocks)
+    # return ''.join([decrypted_first_block] + decrypted_blocks)
 
 
 # --- Function to add random padding to anemic inputs (if they are less than desired length) ---
-def do_we_need_padding(messageToAnalyze,targetBlockSizeInteger):
+def do_we_need_padding(messageToAnalyze, targetBlockSizeInteger):
     # Usually targetBlockSizeInteger will be like 32
     if (len(messageToAnalyze) < targetBlockSizeInteger):
-        numberOfCharsLeft = targetBlockSizeInteger - len(messageToAnalyze) # figure out how many chars we are short by
+        numberOfCharsLeft = targetBlockSizeInteger - len(messageToAnalyze)  # figure out how many chars we are short by
         print(f"We need to pad at least {numberOfCharsLeft} characters!")
-        numberOfCharsLeft = numberOfCharsLeft + (random.randint(0,200)) # incriment by a random value, that way it won't be exactly the same as our ENCK
+        numberOfCharsLeft = numberOfCharsLeft + (
+            random.randint(0, 200))  # incriment by a random value, that way it won't be exactly the same as our ENCK
         # using secrets.choices() - generating random strings
         toConcatBoi = ''.join(secrets.choice(string.ascii_letters + string.digits)
-            for i in range(numberOfCharsLeft))
-        messageToAnalyze = messageToAnalyze + bytes(toConcatBoi,encoding='utf8') # updating orig data by concat
-        return messageToAnalyze # return new message with concatonated data
+                              for i in range(numberOfCharsLeft))
+        messageToAnalyze = messageToAnalyze + bytes(toConcatBoi, encoding='utf8')  # updating orig data by concat
+        return messageToAnalyze  # return new message with concatonated data
     else:
         print("We don't need padding...")
-        return messageToAnalyze # don't need to adjust, we can leave it as it is
-
+        return messageToAnalyze  # don't need to adjust, we can leave it as it is
 
 
 # --- Function to print our logo ---
@@ -185,20 +192,23 @@ def our_Logo():
     print('Built for ICSI 526 - Spring 2023')
     print(f'Started at: {run_at_time}')
 
+
 # --- Function to Defang date time ---
 def defang_datetime():
     current_datetime = f"_{datetime.datetime.now()}"
 
-    current_datetime = current_datetime.replace(":","_")
-    current_datetime = current_datetime.replace(".","-")
-    current_datetime = current_datetime.replace(" ","_")
-    
+    current_datetime = current_datetime.replace(":", "_")
+    current_datetime = current_datetime.replace(".", "-")
+    current_datetime = current_datetime.replace(" ", "_")
+
     return current_datetime
+
 
 # --- Function that saves array data to a pickle file - ie encrypted chunks ---
 def write_out_data_to_pickle(output_file_name, data_array):
     with open(f'{output_file_name}.pickle', 'wb') as f:
         pickle.dump(data_array, f)
+
 
 # --- Function that reads array data to a pickle file, prints it ---
 def read_data_from_pickle(input_file_name):
@@ -207,15 +217,12 @@ def read_data_from_pickle(input_file_name):
         print(loaded_byte_array)
 
 
-
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # MAIN 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 # Program Startup -- Logo Print Out shows that it is working
 our_Logo()
-
-
 
 # Debug mode setup - if yes, enable print outs, if no then no print outs should be shown
 chooseDebugMode = input("Debug Mode - Do you want console print outs?: YES or NO? ").upper()
@@ -240,7 +247,7 @@ chooseMSN = input("Do you want to use the default MSN test data? : YES or NO? ")
 print(chooseMSN.upper())
 print('\n')
 
-    # Catch statement to prevent invalid selections
+# Catch statement to prevent invalid selections
 while chooseMSN == '':
     chooseMSN = input("Can't be left blank, please input either YES or NO: ")
 
@@ -254,18 +261,17 @@ if chooseMSN.upper() == 'NO':
 else:
     print("Using Default Test Data.")
     # MSN = b'Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!'
-    MSN = b'Hello, world!' # NEEDS TO BE LONGER - USE AUTOKEY This was the original test input - Encrypt message "Hello, world!" with ENCK
-
+    MSN = 'Hello, world!'.encode('utf-8')  # NEEDS TO BE LONGER - USE AUTOKEY This was the original test input - Encrypt message "Hello, world!" with ENCK
 
 # Grabbing the ENCK
 ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 if chooseDebugMode == 'YES':
     print(f'LENGTH OF BLOCK SIZE: {len(ENCK)}')
 # If message is shorter than block size, we will adjust it
-MSN = do_we_need_padding(MSN,len(ENCK))
+MSN = do_we_need_padding(MSN, len(ENCK))
+MSN = MSN
 print(MSN)
 print("\n")
-
 
 ''' GETTING ENCRYPTION DONE '''
 encrypted_message_val = encrypt_message(MSN, ENCK)
@@ -275,12 +281,11 @@ if chooseDebugMode == 'YES':
     print(f"Final result of encryption: {encrypt_message_hex}")
 
 # write to file: (WILL NOT WORK IF IT IS EMPTY)
-write_out_data_to_pickle("encryption_normal",encrypted_message_val)
+write_out_data_to_pickle("encryption_normal", encrypted_message_val)
 
 ''' Now for Decryption '''
-decryptedBoi = decrypt_message(encrypted_message_val,ENCK)
+decryptedBoi = decrypt_message(encrypted_message_val, ENCK).decode('utf-8')
 decrypted_HEX_Boi = decryptedBoi.hex()
-print(f"FINAL DECRYPTION: {decryptedBoi}")
+print(f"FINAL DECRYPTION: {decryptedBoi.decode('utf-8', 'replace')}")
 print("\n")
 print(f"FINAL HEX DECRYPTION: {decrypted_HEX_Boi}")
-
