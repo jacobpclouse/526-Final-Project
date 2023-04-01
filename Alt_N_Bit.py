@@ -48,6 +48,7 @@ def generate_key_pair():
 # --- Function to Encrypt message using ENCK ---
 def encrypt_message(MSN, ENCK):
     # Step 1: Hash message and store in e
+    # hashlib doc: https://docs.python.org/3/library/hashlib.html
     e = hashlib.sha256(MSN).digest()
     if chooseDebugMode == 'YES':
         print(f"MSN: {MSN}")
@@ -64,7 +65,7 @@ def encrypt_message(MSN, ENCK):
     if chooseDebugMode == 'YES':
         print(f"Block Size: {block_size}") # looks like block size will be 32... should we adjust this?
 
-    ''' NEED TO ADJUST THIS CODE'''
+    # python bitwise xor: https://favtutor.com/blogs/xor-python
     BLK = [e[i:i+block_size] for i in range(0, len(e), block_size)]
     BLK[0] = bytes([BLK[0][i] ^ ENCK[i] for i in range(block_size)])
     if chooseDebugMode == 'YES':
@@ -81,12 +82,12 @@ def encrypt_message(MSN, ENCK):
         print(f"NEW H1: {H1}")
 
 
-    # Step 5: Encrypt n blocks of MSN using different keys -- THIS RETURNS EMPTY VALUES - WHYYY???
+    # Step 5: Encrypt n blocks of MSN using different keys 
     # alright, we need to add some extra text to get it up over the the block size here (maybe add the block data to the end of the message?)
     print(f'Len(MSN): {len(MSN)}')
     print(f'Len(BLK[0]): {len(BLK[0])}')
     n = len(MSN) // len(BLK[0])
-    print(f"what is n: {n}") # n is 0, its not hitting the for loop...
+    print(f"what is n: {n}") # if n is 0, it will not access the loop, we need to make sure that it is equal or greater than the block size
     encrypted_blocks = []
     for i in range(n):
         key = H1
@@ -94,7 +95,9 @@ def encrypt_message(MSN, ENCK):
         if i > 0:
             key = hashlib.sha256(key).digest()
             print(f"Hashlib key: {key}")
+        # Python: for loops - for i in range(0,len(list) vs for i in list: https://stackoverflow.com/questions/32930246/python-for-loops-for-i-in-range0-lenlist-vs-for-i-in-list
         block = MSN[i*len(BLK[0]):(i+1)*len(BLK[0])]
+        # Symmetric encryption: https://cryptography.io/en/latest/hazmat/primitives/symmetric-encryption/
         cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
         encryptor = cipher.encryptor()
         encrypted_block = encryptor.update(block) + encryptor.finalize()
