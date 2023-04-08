@@ -1,11 +1,25 @@
+# Written by Luna D. and Jacob Clouse for ICSI 526 
+
+# Original Paper -> Alternative N-bit Key Data Encryption for Block Ciphers
+# Edited on Windows 10 - may need to be edited if you want to use on Linux/MacOS
+
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# Importing Libraries / Modules 
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 import datetime
 import pickle
+# import random
 
 from AES import AES
 from Alt_N_Bit import generate_key_pair, pad, encrypt_message, decrypt_message
 from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
 
+from flask import Flask, flash, request, redirect, url_for, render_template,send_from_directory, jsonify # for web back end
 
+
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# Functions
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 def our_Logo():
     run_at_time = defang_datetime()
     print('Code designed, written & tested by:')
@@ -41,6 +55,10 @@ def read_data_from_pickle(input_file_name):
         print(loaded_byte_array)
 
 
+
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# MAIN 
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 if __name__ == '__main__':
     # Program Startup -- Logo Print Out shows that it is working
     our_Logo()

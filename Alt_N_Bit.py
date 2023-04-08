@@ -22,7 +22,9 @@ from AES import *
 
 """Importing Libraries / Modules"""
 from cryptography.hazmat.primitives.asymmetric import ec
-
+import secrets # for padding MSN up to block size
+import string # for padding MSN up to block size
+import random # for padding MSN up to block size
 
 def generate_key_pair():
     """
@@ -47,7 +49,7 @@ aes = AES(b'\x00' * 16)
 
 
 # todo integrate approach from paper: review encrypt. Status incomplete
-def encrypt(msn, n, enck, initialization_vector):
+def encrypt_message(msn, n, enck, initialization_vector):
     """
     msn: message
     n: n-bit
@@ -78,7 +80,7 @@ def encrypt(msn, n, enck, initialization_vector):
 
 
 # todo integrate approach from paper and review decrypt, convert back to utf-8. Status incomplete
-def decrypt(blk, enck, initialization_vector):
+def decrypt_message(blk, enck, initialization_vector):
     """
     Decrypts `ciphertext` using OFB mode initialization vector (iv).
     blk: encrypted blocks of size n
@@ -94,3 +96,20 @@ def decrypt(blk, enck, initialization_vector):
         previous = block
 
     return b''.join(blocks)
+
+
+# --- Function to add random padding to anemic inputs (if they are less than desired length) ---
+def pad(messageToAnalyze,targetBlockSizeInteger):
+    # Usually targetBlockSizeInteger will be like 32
+    if (len(messageToAnalyze) < targetBlockSizeInteger):
+        numberOfCharsLeft = targetBlockSizeInteger - len(messageToAnalyze) # figure out how many chars we are short by
+        print(f"We need to pad at least {numberOfCharsLeft} characters!")
+        numberOfCharsLeft = numberOfCharsLeft + (random.randint(0,200)) # incriment by a random value, that way it won't be exactly the same as our ENCK
+        # using secrets.choices() - generating random strings
+        toConcatBoi = ''.join(secrets.choice(string.ascii_letters + string.digits)
+            for i in range(numberOfCharsLeft))
+        messageToAnalyze = messageToAnalyze + bytes(toConcatBoi,encoding='utf8') # updating orig data by concat
+        return messageToAnalyze # return new message with concatonated data
+    else:
+        print("We don't need padding...")
+        return messageToAnalyze # don't need to adjust, we can leave it as it is
