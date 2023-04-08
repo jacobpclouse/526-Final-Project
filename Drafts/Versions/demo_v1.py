@@ -18,12 +18,6 @@ from flask import Flask, flash, request, redirect, url_for, render_template,send
 
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-# Variables
-# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-demo = Flask(__name__)
-
-
-# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Functions
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 def our_Logo():
@@ -65,7 +59,6 @@ def read_data_from_pickle(input_file_name):
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # MAIN 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-'''
 if __name__ == '__main__':
     # Program Startup -- Logo Print Out shows that it is working
     our_Logo()
@@ -88,7 +81,7 @@ if __name__ == '__main__':
     print('\n')
     print(MSN)
 
-    # GETTING ENCRYPTION DONE:
+    ''' GETTING ENCRYPTION DONE: '''
     encrypted_message_val = encrypt_message(MSN, ENCK)
     # todo why convert to hex from binary
     encrypt_message_hex = encrypted_message_val.hex()
@@ -99,7 +92,7 @@ if __name__ == '__main__':
     # write to file: (WILL NOT WORK IF IT IS EMPTY)
     write_out_data_to_pickle("encryption_normal", encrypted_message_val)
 
-    # Now for Decryption
+    ''' Now for Decryption '''
     decryptedBoi = decrypt_message(encrypted_message_val, ENCK)
     # todo again why convert to hex from binary
     decrypted_HEX_Boi = decryptedBoi.hex()
@@ -107,35 +100,3 @@ if __name__ == '__main__':
     print(f"FINAL DECRYPTION: {decryptedBoi}")
     print("\n")
     print(f"FINAL HEX DECRYPTION: {decrypted_HEX_Boi}")
-'''
-
-# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-# Routes
-# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-@demo.route('/',methods=['GET', 'POST'])
-def mainIndex():
-    dashboardHeader = "Alt N Bit Encryption Demo" # in base temp, basically what this page does
-    title = "Alt N Bit Encryption Demo - Luna and Jacob " # in base temp, actual page title in browser
-    returned_translated = "Encrypted text will display here"
-
-    # Program Startup -- Logo Print Out shows that it is working
-    our_Logo()
-
-    # Generate key pairs & Display them
-    sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
-
-    print('\n')
-    print('Sender private key:', sender_private_key.private_numbers().private_value)
-    print('Sender public key:', sender_public_key.public_numbers().x)
-    print('Receiver private key:', receiver_private_key.private_numbers().private_value)
-    print('Receiver public key:', receiver_public_key.public_numbers().x)
-
-    return render_template('translate.html', html_title = title, dash_head = dashboardHeader, translated = returned_translated)
-
-
-
-# main statement - used to set dev mode
-if __name__ == '__main__':
-    demo.run(debug=True)
-
-
