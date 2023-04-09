@@ -39,41 +39,57 @@ def generate_key_pair():
     return sender_private_key, sender_public_key, receiver_private_key, receiver_public_key
 
 
-# todo get n-bit input from user: set to 32 for now
-n_bit = 32
-
 # todo initialize AES appropriately
 aes = AES(b'\x00' * 16)
+h0 = b'\x01' * 16  # iv
 
 
 # todo integrate approach from paper: review encrypt. Status incomplete
-def encrypt(msn, n, enck, initialization_vector):
+def encrypt(msn, n, enck):
     """
     msn: message
-    n: n-bit
+    n: number of blocks
     enck: key
     """
-    # Calculate the number of bytes of padding necessary for the plaintext making it a multiple of the block size
-    padding_len = n - len(msn) % n
-    # Duplicate 16 length to create the padding and convert it to bytes to operate on it in bytes
-    padding = bytes([padding_len] * padding_len)
-    # Add the padding to the plaintext
-    padded_plaintext = msn + padding
 
-    plaintext_blocks = [padded_plaintext[i:i + n] for i in range(0, len(padded_plaintext), n)]
+    """"""
+
+    blocks = []
+
+    # Step 1: e = HASH(MSN, H0);
+    e = hash(msn, h0)
+
+    # Step 2: H1 = HASH(ENCK, H0);
+    h1 = hash(enck, h0)
+
+    # Step 3: BLK[0] = e XOR ENCK;
+    blocks[0] = xor_bytes(e, enck)
+
+    # Step 4: H1 = HASH(e, H1);
+    h1 = hash(e, h1)
+
+    """add padding by n-bits"""
+    # # Calculate the number of bytes of padding necessary for the plaintext making it a multiple of the block size
+    # padding_len = n - len(msn) % n
+    # # Duplicate 16 length to create the padding and convert it to bytes to operate on it in bytes
+    # padding = bytes([padding_len] * padding_len)
+    # # Add the padding to the plaintext
+    # padded_plaintext = msn + padding
+
+    msn_blocks = [padded_plaintext[i:i + n] for i in range(0, len(padded_plaintext), n)]
 
     # make each ciphertext block dependent on the previous one
-    previous_block = initialization_vector
-    blocks = []
-    # split plaintext into 16-byte blocks and encrypt each block
-    for plaintext_block in plaintext_blocks:
-        # OFB technique: convert a block cipher to a stream cipher by generating a key stream that is XORed with
-        # the plaintext
-        keystream_block = aes.encrypt_block(previous_block)
-        cipher_block = xor_bytes(plaintext_block, keystream_block)
-        blocks.append(cipher_block)
-        previous_block = keystream_block
+    # previous_block = enck
 
+    # Step 5: encrypt each block
+    for msn_block in msn_blocks:
+        # BLK[x] = blk[x] XOR H1;
+        cipher_block = xor_bytes(msn_block, h1)
+        blocks.append(cipher_block)
+
+        # H1 = HASH(H1, H1);
+        previous_block = h1
+        h1 = aes.encrypt_block(previous_block)
     return b''.join(blocks)
 
 

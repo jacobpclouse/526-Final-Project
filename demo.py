@@ -2,7 +2,7 @@ import datetime
 import pickle
 
 from AES import AES
-from Alt_N_Bit import generate_key_pair, pad, encrypt_message, decrypt_message
+from Alt_N_Bit import generate_key_pair, encrypt, decrypt
 from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
 
 
@@ -59,12 +59,16 @@ if __name__ == '__main__':
 
     # Grabbing the ENCK
     ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
-    MSN = pad(MSN, len(ENCK))
+    # MSN = pad(MSN, len(ENCK))
     print('\n')
     print(MSN)
 
+    # iv = b'\x01' * 16
+    # message = bytes(aes.read_from_file(INPUT_DIRECTORY + filename), encoding='utf-8')
+    n_blocks = 16
+
     ''' GETTING ENCRYPTION DONE: '''
-    encrypted_message_val = encrypt_message(MSN, ENCK)
+    encrypted_message_val = encrypt(MSN, n_blocks, ENCK)
     # todo why convert to hex from binary
     encrypt_message_hex = encrypted_message_val.hex()
 
@@ -75,10 +79,10 @@ if __name__ == '__main__':
     write_out_data_to_pickle("encryption_normal", encrypted_message_val)
 
     ''' Now for Decryption '''
-    decryptedBoi = decrypt_message(encrypted_message_val, ENCK)
-    # todo again why convert to hex from binary
-    decrypted_HEX_Boi = decryptedBoi.hex()
-    print('\n')
-    print(f"FINAL DECRYPTION: {decryptedBoi}")
-    print("\n")
-    print(f"FINAL HEX DECRYPTION: {decrypted_HEX_Boi}")
+    # decryptedBoi = decrypt_message(encrypted_message_val, ENCK)
+    # # todo again why convert to hex from binary
+    # decrypted_HEX_Boi = decryptedBoi.hex()
+    # print('\n')
+    # print(f"FINAL DECRYPTION: {decryptedBoi}")
+    # print("\n")
+    # print(f"FINAL HEX DECRYPTION: {decrypted_HEX_Boi}")

@@ -218,8 +218,6 @@ class AES:
         """
         Encrypts a single block of 16 byte long plaintext.
         """
-        assert len(plaintext) == 16
-
         plain_state = bytes2matrix(plaintext)
 
         add_round_key(plain_state, self._key_matrices[0])
