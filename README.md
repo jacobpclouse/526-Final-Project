@@ -47,4 +47,4 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Python – Convert Image to String and vice-versa: https://www.geeksforgeeks.org/python-convert-image-to-string-and-vice-versa/
 - Python PIL | Image.frombytes() Method: https://www.geeksforgeeks.org/python-pil-image-frombytes-method/
 - Python PIL | Image.save() method: https://www.geeksforgeeks.org/python-pil-image-save-method/
-- 
+- How To Create Your First Web Application Using Flask and Python 3: https://www.digitalocean.com/community/tutorials/how-to-create-your-first-web-application-using-flask-and-python-3

@@ -6,3 +6,4 @@
 /.idea
 alt version.py
 *.xml
+/__pycache__
