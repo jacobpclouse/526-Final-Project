@@ -67,11 +67,11 @@ def encrypt(msn, n, enck):
     print("h0 type of: ",type(h0))
     print("enck type of: ",type(enck))
     # e = hashlib.sha256(msn + h0).digest()
-    e = hashlib.sha256(msn.encode() + str(h0).encode()).digest()
+    e = hashlib.sha256(msn.encode() + h0).digest()
 
     # Step 2: H1 = HASH(ENCK, H0);
     # h1 = hashlib.sha256(enck + h0).digest()
-    h1 = hashlib.sha256(str(enck).encode() + str(h0).encode()).digest()
+    h1 = hashlib.sha256(enck + h0).digest()
 
     # Step 3: BLK[0] = e XOR ENCK;
     blocks.append(xor_bytes(e, enck))
