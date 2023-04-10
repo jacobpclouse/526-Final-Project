@@ -136,8 +136,9 @@ def encryptedImageFunc():
     if request.method == "POST":
         print("encryptedImageFunc - Post Request Recieved!")
 
+        message = request.json.get('message')
         number_Blocks = request.json.get('numBlocks')
-        sent_image = request.json.get('image') # NEED TO ADJUST FOR THE BLOB
+        sent_text = request.json.get('text')
 
         # Generate key pairs & Display them
         sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
@@ -148,9 +149,8 @@ def encryptedImageFunc():
         # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
         # print('Receiver public key:', receiver_public_key.public_numbers().x)
 
-        print(f"Image Sent: {sent_image} \n Number Of Blocks: {number_Blocks}")
-        # return jsonify(success=True)
-        return title
+        print(message)
+        return jsonify(success=True)
     
 
 
@@ -184,8 +184,7 @@ def encryptedTextFunc():
         # print('Receiver public key:', receiver_public_key.public_numbers().x)
 
         print(f"Text Sent: {sent_text} \n Number Of Blocks: {number_Blocks}")
-        # return jsonify(success=True)
-        return title
+        return jsonify(success=True)
 
 
 
@@ -209,7 +208,7 @@ def decryptedImageFunc():
         print("decryptedImageFunc - Post Request Recieved!")
 
         number_Blocks = request.json.get('numBlocks')
-        sent_image = request.json.get('image') # NEED TO ADJUST FOR THE BLOB
+        sent_image = request.json.get('image')
 
         # Generate key pairs & Display them
         sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
@@ -220,9 +219,8 @@ def decryptedImageFunc():
         # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
         # print('Receiver public key:', receiver_public_key.public_numbers().x)
 
-        print(f"Image Sent: {sent_image} \n Number Of Blocks: {number_Blocks}")
-        # return jsonify(success=True)
-        return title
+        print(f"Image Sent: {sent_text} \n Number Of Blocks: {number_Blocks}")
+        return jsonify(success=True)
     
 
 
@@ -255,8 +253,7 @@ def decryptedTextFunc():
         # print('Receiver public key:', receiver_public_key.public_numbers().x)
 
         print(f"Text Sent: {sent_text} \n Number Of Blocks: {number_Blocks}")
-        # return jsonify(success=True)
-        return title
+        return jsonify(success=True)
 
 
 

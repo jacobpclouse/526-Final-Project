@@ -100,7 +100,14 @@ export default {
         }
       } else {
         const response = await axios.post('http://127.0.0.1:5000/encrypt-text', { text: this.text, numBlocks: this.numBlocks });
+          // .then(response => {
+          //   console.log(response.data);
+          // })
+          // .catch(error => {
+          //   console.error(error);
+          // });
         this.result = response.data;
+        console.log(response.data);
       }
     },
     async decrypt() {
