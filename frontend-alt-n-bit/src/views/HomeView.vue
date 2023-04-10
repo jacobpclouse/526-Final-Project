@@ -69,7 +69,7 @@ export default {
   methods: {
     // Test to see if sending messages works
     sendMessage() {
-      axios.post('http://127.0.0.1:5000/message1', { message: this.message })
+      axios.post('http://127.0.0.1:5000/', { message: this.message })
         .then(response => {
           console.log(response.data);
         })
@@ -82,6 +82,8 @@ export default {
       this.file = event.target.files[0];
       this.isImage = this.file.type.startsWith('image/');
     },
+
+    // Send encryption data to the flask app
     async encrypt() {
       if (this.file) {
         if (this.isImage) {

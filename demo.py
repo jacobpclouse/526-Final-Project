@@ -115,33 +115,120 @@ if __name__ == '__main__':
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Routes
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-@demo.route('/',methods=['GET', 'POST'])
+
+# Route to process encrypted image data
+@demo.route('/encrypt-image',methods=['GET', 'POST'])
+def encryptedImageFunc():
+    title = "Route to process encrypted image data - Alt N Bit Encryption Demo - Luna and Jacob " 
+
+
+    if request.method == "GET":
+    # Program Startup -- Logo Print Out shows that it is working
+        our_Logo()
+
+        response_object = {'status':'success'}
+        response_object['message'] ='Data added!'
+        return jsonify(response_object)
+
+    if request.method == "POST":
+        print("encryptedImageFunc - Post Request Recieved!")
+
+        message = request.json.get('message')
+        number_Blocks = request.json.get('numBlocks')
+        sent_text = request.json.get('text')
+
+        # Generate key pairs & Display them
+        sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+
+        # print('\n')
+        # print('Sender private key:', sender_private_key.private_numbers().private_value)
+        # print('Sender public key:', sender_public_key.public_numbers().x)
+        # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
+        # print('Receiver public key:', receiver_public_key.public_numbers().x)
+
+        print(message)
+        return jsonify(success=True)
+    
+
+
+
+# Route to process encrypted image data
+@demo.route('/encrypt-text',methods=['GET', 'POST'])
+def encryptedTextFunc():
+    title = "Route to process encrypted text data - Alt N Bit Encryption Demo - Luna and Jacob " 
+
+
+    if request.method == "GET":
+    # Program Startup -- Logo Print Out shows that it is working
+        our_Logo()
+
+        response_object = {'status':'success'}
+        response_object['message'] ='Data added!'
+        return jsonify(response_object)
+
+    if request.method == "POST":
+        print("encryptedImageFunc - Post Request Recieved!")
+
+        message = request.json.get('message')
+        number_Blocks = request.json.get('numBlocks')
+        sent_text = request.json.get('text')
+
+        # Generate key pairs & Display them
+        sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+
+        # print('\n')
+        # print('Sender private key:', sender_private_key.private_numbers().private_value)
+        # print('Sender public key:', sender_public_key.public_numbers().x)
+        # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
+        # print('Receiver public key:', receiver_public_key.public_numbers().x)
+
+        print(message)
+        return jsonify(success=True)
+
+
+
+
+
+# ********************
+# Original route info - DO NOT USE
+#*********************
+@demo.route('/OLDMAIN',methods=['GET', 'POST'])
 def mainIndex():
     dashboardHeader = "Alt N Bit Encryption Demo" # in base temp, basically what this page does
     title = "Alt N Bit Encryption Demo - Luna and Jacob " # in base temp, actual page title in browser
     returned_translated = "Encrypted text will display here"
 
+    if request.method == "GET":
     # Program Startup -- Logo Print Out shows that it is working
-    our_Logo()
+        our_Logo()
 
-    # Generate key pairs & Display them
-    sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
-
-    print('\n')
-    print('Sender private key:', sender_private_key.private_numbers().private_value)
-    print('Sender public key:', sender_public_key.public_numbers().x)
-    print('Receiver private key:', receiver_private_key.private_numbers().private_value)
-    print('Receiver public key:', receiver_public_key.public_numbers().x)
+        response_object = {'status':'success'}
+        response_object['message'] ='Data added!'
+        return jsonify(response_object)
 
     if request.method == "POST":
         print("Post Request Recieved!")
 
-    response_object = {'status':'success'}
-    response_object['message'] ='Data added!'
+        message = request.json.get('message')
+        number_Blocks = request.json.get('numBlocks')
+        sent_text = request.json.get('text')
+
+        # Generate key pairs & Display them
+        sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+
+        print('\n')
+        print('Sender private key:', sender_private_key.private_numbers().private_value)
+        print('Sender public key:', sender_public_key.public_numbers().x)
+        print('Receiver private key:', receiver_private_key.private_numbers().private_value)
+        print('Receiver public key:', receiver_public_key.public_numbers().x)
+
+
+        print(message)
+        return jsonify(success=True)
     # return render_template('index.html', html_title = title, dash_head = dashboardHeader, translated = returned_translated)
-    return jsonify(response_object)
 
 
+# Route to test if data was being sent properly
 @demo.route('/message1', methods=['POST'])
 def receive_message():
     message = request.json.get('message')
