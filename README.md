@@ -48,3 +48,5 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Python PIL | Image.frombytes() Method: https://www.geeksforgeeks.org/python-pil-image-frombytes-method/
 - Python PIL | Image.save() method: https://www.geeksforgeeks.org/python-pil-image-save-method/
 - How To Create Your First Web Application Using Flask and Python 3: https://www.digitalocean.com/community/tutorials/how-to-create-your-first-web-application-using-flask-and-python-3
+- Connect Vue.js with Flask: https://medium.com/featurepreneur/connect-vuejs-with-flask-1316ea0afecf
+- 

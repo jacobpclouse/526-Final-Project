@@ -10,10 +10,12 @@ import datetime
 import pickle
 # import random
 
+# encryption imports
 from AES import AES
 from Alt_N_Bit import generate_key_pair, pad, encrypt_message, decrypt_message
 from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
 
+# Backend imports 
 from flask import Flask, flash, request, redirect, url_for, render_template,send_from_directory, jsonify # for web back end
 from flask_cors import CORS, cross_origin
 
@@ -21,7 +23,7 @@ from flask_cors import CORS, cross_origin
 # Variables
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 demo = Flask(__name__)
-# demo = Flask(__name__, static_folder='../frontend-alt-n-bit/dist', static_url_path='')
+# without cors, app will refuse the requests from the frontend
 Cors = CORS(demo)
 CORS(demo, resources={r'/*': {'origins': '*'}},CORS_SUPPORTS_CREDENTIALS = True)
 demo.config['CORS_HEADERS'] = 'Content-Type'
@@ -116,7 +118,8 @@ if __name__ == '__main__':
 # Routes
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-# Route to process encrypted image data
+''' ENCRYPTION '''
+# Route to process encrypted image data ** NEED TO STORE AS BLOB IN UPLOADS
 @demo.route('/encrypt-image',methods=['GET', 'POST'])
 def encryptedImageFunc():
     title = "Route to process encrypted image data - Alt N Bit Encryption Demo - Luna and Jacob " 
@@ -151,7 +154,6 @@ def encryptedImageFunc():
     
 
 
-
 # Route to process encrypted image data
 @demo.route('/encrypt-text',methods=['GET', 'POST'])
 def encryptedTextFunc():
@@ -169,7 +171,6 @@ def encryptedTextFunc():
     if request.method == "POST":
         print("encryptedImageFunc - Post Request Recieved!")
 
-        message = request.json.get('message')
         number_Blocks = request.json.get('numBlocks')
         sent_text = request.json.get('text')
 
@@ -182,7 +183,76 @@ def encryptedTextFunc():
         # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
         # print('Receiver public key:', receiver_public_key.public_numbers().x)
 
-        print(message)
+        print(f"Text Sent: {sent_text} \n Number Of Blocks: {number_Blocks}")
+        return jsonify(success=True)
+
+
+
+
+''' DECRYPTION '''
+# Route to decrypt image data ** NEED TO STORE AS BLOB IN UPLOADS
+@demo.route('/decrypt-image',methods=['GET', 'POST'])
+def decryptedImageFunc():
+    title = "Route to decrypt image data - Alt N Bit Encryption Demo - Luna and Jacob " 
+
+
+    if request.method == "GET":
+    # Program Startup -- Logo Print Out shows that it is working
+        our_Logo()
+
+        response_object = {'status':'success'}
+        response_object['message'] ='Data added!'
+        return jsonify(response_object)
+
+    if request.method == "POST":
+        print("decryptedImageFunc - Post Request Recieved!")
+
+        number_Blocks = request.json.get('numBlocks')
+        sent_image = request.json.get('image')
+
+        # Generate key pairs & Display them
+        sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+
+        # print('\n')
+        # print('Sender private key:', sender_private_key.private_numbers().private_value)
+        # print('Sender public key:', sender_public_key.public_numbers().x)
+        # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
+        # print('Receiver public key:', receiver_public_key.public_numbers().x)
+
+        print(f"Image Sent: {sent_text} \n Number Of Blocks: {number_Blocks}")
+        return jsonify(success=True)
+    
+
+
+# Route to decrypt image data
+@demo.route('/decrypt-text',methods=['GET', 'POST'])
+def decryptedTextFunc():
+    title = "Route to decrypt text data - Alt N Bit Encryption Demo - Luna and Jacob " 
+
+    if request.method == "GET":
+    # Program Startup -- Logo Print Out shows that it is working
+        our_Logo()
+
+        response_object = {'status':'success'}
+        response_object['message'] ='Data added!'
+        return jsonify(response_object)
+
+    if request.method == "POST":
+        print("decryptedTextFunc - Post Request Recieved!")
+
+        number_Blocks = request.json.get('numBlocks')
+        sent_text = request.json.get('text')
+
+        # Generate key pairs & Display them
+        sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+
+        # print('\n')
+        # print('Sender private key:', sender_private_key.private_numbers().private_value)
+        # print('Sender public key:', sender_public_key.public_numbers().x)
+        # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
+        # print('Receiver public key:', receiver_public_key.public_numbers().x)
+
+        print(f"Text Sent: {sent_text} \n Number Of Blocks: {number_Blocks}")
         return jsonify(success=True)
 
 
@@ -192,6 +262,7 @@ def encryptedTextFunc():
 # ********************
 # Original route info - DO NOT USE
 #*********************
+
 @demo.route('/OLDMAIN',methods=['GET', 'POST'])
 def mainIndex():
     dashboardHeader = "Alt N Bit Encryption Demo" # in base temp, basically what this page does
