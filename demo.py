@@ -66,6 +66,44 @@ def read_data_from_pickle(input_file_name):
         print(loaded_byte_array)
 
 
+# --- function that handles all the encryption functions --- 
+def inputMSNforEncryption(MSN,number_of_Blocks):
+    print(f"NUMBER OF BLOCKS: {number_of_Blocks}")
+
+    # Generate key pairs & Display them
+    sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+
+    print('\n')
+    print('Sender private key:', sender_private_key.private_numbers().private_value)
+    print('Sender public key:', sender_public_key.public_numbers().x)
+    print('Receiver private key:', receiver_private_key.private_numbers().private_value)
+    print('Receiver public key:', receiver_public_key.public_numbers().x)
+
+    # todo NEEDS TO BE LONGER - USE AUTOKEY This was the original test input - Encrypt message "Hello, world!" with ENCK
+    # MSN = b'Hello, world!'
+
+    # Grabbing the ENCK
+    ENCK = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
+    MSN = pad(MSN, len(ENCK))
+    print('\n')
+    print(MSN)
+
+    # GETTING ENCRYPTION DONE:
+    encrypted_message_val = encrypt_message(MSN, ENCK)
+    # todo why convert to hex from binary
+    encrypt_message_hex = encrypted_message_val.hex()
+
+    print('\n')
+    print(f"Final result of encryption: {encrypt_message_hex}")
+
+    # write to file: (WILL NOT WORK IF IT IS EMPTY)
+    write_out_data_to_pickle("encryption_normal", encrypted_message_val)
+
+    return encrypted_message_val,ENCK
+
+    # decryptedBoi = decrypt_message(encrypted_message_val, ENCK)
+
+
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # MAIN 
@@ -140,7 +178,7 @@ def encryptedImageFunc():
         sent_image = request.json.get('image') # NEED TO ADJUST FOR THE BLOB
 
         # Generate key pairs & Display them
-        sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+        # sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
 
         # print('\n')
         # print('Sender private key:', sender_private_key.private_numbers().private_value)
@@ -174,14 +212,9 @@ def encryptedTextFunc():
         number_Blocks = request.json.get('numBlocks')
         sent_text = request.json.get('text')
 
-        # Generate key pairs & Display them
-        sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+        # pass data to encryption function
+        encrypted_msn_to_return, our_ENCK = inputMSNforEncryption(sent_text,number_Blocks)
 
-        # print('\n')
-        # print('Sender private key:', sender_private_key.private_numbers().private_value)
-        # print('Sender public key:', sender_public_key.public_numbers().x)
-        # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
-        # print('Receiver public key:', receiver_public_key.public_numbers().x)
 
         print(f"Text Sent: {sent_text} \n Number Of Blocks: {number_Blocks}")
         # return jsonify(success=True)
@@ -212,7 +245,7 @@ def decryptedImageFunc():
         sent_image = request.json.get('image') # NEED TO ADJUST FOR THE BLOB
 
         # Generate key pairs & Display them
-        sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+        # sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
 
         # print('\n')
         # print('Sender private key:', sender_private_key.private_numbers().private_value)
@@ -246,7 +279,7 @@ def decryptedTextFunc():
         sent_text = request.json.get('text')
 
         # Generate key pairs & Display them
-        sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+        # sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
 
         # print('\n')
         # print('Sender private key:', sender_private_key.private_numbers().private_value)

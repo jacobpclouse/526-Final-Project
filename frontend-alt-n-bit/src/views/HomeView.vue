@@ -95,6 +95,7 @@ export default {
 
           const response = await axios.post('http://127.0.0.1:5000/encrypt-image', formData);
           this.result = response.data;
+          console.log(response.data);
         } else {
           // handle non-image file encryption
         }
@@ -119,14 +120,15 @@ export default {
 
           const response = await axios.post('http://127.0.0.1:5000/decrypt-image', formData);
           this.result = response.data;
+          console.log(response.data);
         } else {
           // handle non-image file decryption
         }
       } else {
         // const response = await axios.post('/decrypt-text', { text: this.text, numBlocks: this.numBlocks });
         const response = await axios.post('http://127.0.0.1:5000/decrypt-text', { text: this.text, numBlocks: this.numBlocks });
-
         this.result = response.data;
+        console.log(response.data);
       }
     },
   },
