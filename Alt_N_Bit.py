@@ -18,6 +18,8 @@ existing block ciphers, making it a practical solution for real-world encryption
 We are using AES block cipher (OFB operation) to integrate the innovative approach in our solution
 
 """
+import hashlib
+
 from AES import *
 
 """Importing Libraries / Modules"""
@@ -39,6 +41,10 @@ def generate_key_pair():
     return sender_private_key, sender_public_key, receiver_private_key, receiver_public_key
 
 
+def split_blocks(msn, n_bits, n_blocks):
+    return [msn[i:i + n_bits] for i in range(0, len(msn), n_blocks)]
+
+
 # todo initialize AES appropriately
 aes = AES(b'\x00' * 16)
 h0 = b'\x01' * 16  # iv
@@ -57,56 +63,69 @@ def encrypt(msn, n, enck):
     blocks = []
 
     # Step 1: e = HASH(MSN, H0);
-    e = hash(msn, h0)
+    e = hashlib.sha256(msn + h0).digest()
 
     # Step 2: H1 = HASH(ENCK, H0);
-    h1 = hash(enck, h0)
+    h1 = hashlib.sha256(enck + h0).digest()
 
     # Step 3: BLK[0] = e XOR ENCK;
-    blocks[0] = xor_bytes(e, enck)
+    blocks.append(xor_bytes(e, enck))
 
     # Step 4: H1 = HASH(e, H1);
-    h1 = hash(e, h1)
+    h1 = hashlib.sha256(e + h1).digest()
 
     """add padding by n-bits"""
     # # Calculate the number of bytes of padding necessary for the plaintext making it a multiple of the block size
-    # padding_len = n - len(msn) % n
+    # n_bits = len(enck)
+    # padding_len = n_bits - len(msn) % n_bits
     # # Duplicate 16 length to create the padding and convert it to bytes to operate on it in bytes
     # padding = bytes([padding_len] * padding_len)
     # # Add the padding to the plaintext
-    # padded_plaintext = msn + padding
-
-    msn_blocks = [padded_plaintext[i:i + n] for i in range(0, len(padded_plaintext), n)]
+    # padded_msn = msn + padding
+    #
+    # msn_blocks = [padded_msn[i:i + n] for i in range(0, len(padded_msn), n)]
 
     # make each ciphertext block dependent on the previous one
     # previous_block = enck
 
     # Step 5: encrypt each block
-    for msn_block in msn_blocks:
+    for msn_block in split_blocks(msn, len(enck), n):
         # BLK[x] = blk[x] XOR H1;
         cipher_block = xor_bytes(msn_block, h1)
         blocks.append(cipher_block)
 
         # H1 = HASH(H1, H1);
-        previous_block = h1
-        h1 = aes.encrypt_block(previous_block)
-    return b''.join(blocks)
+        # previous_block = h1
+        # h1 = aes.encrypt_block(previous_block)
+        h1 = hashlib.sha256(h1).digest()
+
+    print(len(blocks) == len(msn))
+    return blocks
 
 
 # todo integrate approach from paper and review decrypt, convert back to utf-8. Status incomplete
-def decrypt(blk, enck, initialization_vector):
+def decrypt(blk, enck):
     """
-    Decrypts `ciphertext` using OFB mode initialization vector (iv).
     blk: encrypted blocks of size n
     enck: key
     """
+    # Step 1: H1 = HASH(ENCK, H0)
+    h1 = hashlib.sha256(enck + h0).digest()
+
+    # Step 2: e = BLK[0] XOR ENCK;
+    e = xor_bytes(blk[0], enck)
+
+    # Step 3: H1 = HASH(e, H1);
+    h1 = hashlib.sha256(e + h1).digest()
+
+    # Step 4:
     blocks = []
-    previous = initialization_vector
     for ciphertext_block in blk:
-        # OFB mode decrypt: ciphertext XOR encrypt(previous)
-        block = aes.encrypt_block(previous)
-        plaintext_block = xor_bytes(ciphertext_block, block)
+        # blk[x] = BLK[x] XOR H1;
+        plaintext_block = xor_bytes(ciphertext_block, h1)
         blocks.append(plaintext_block)
-        previous = block
+
+        # H1 = HASH(H1, H1);
+        h1 = hashlib.sha256(h1).digest()
 
     return b''.join(blocks)

@@ -68,21 +68,21 @@ if __name__ == '__main__':
     n_blocks = 16
 
     ''' GETTING ENCRYPTION DONE: '''
-    encrypted_message_val = encrypt(MSN, n_blocks, ENCK)
+    encrypted_blk = encrypt(MSN, n_blocks, ENCK)
     # todo why convert to hex from binary
-    encrypt_message_hex = encrypted_message_val.hex()
+    encrypted_hex = b''.join(encrypted_blk).hex()
 
     print('\n')
-    print(f"Final result of encryption: {encrypt_message_hex}")
+    print(f"Final result of encryption: {encrypted_hex}")
 
     # write to file: (WILL NOT WORK IF IT IS EMPTY)
-    write_out_data_to_pickle("encryption_normal", encrypted_message_val)
+    write_out_data_to_pickle("encryption_normal", encrypted_blk)
 
     ''' Now for Decryption '''
-    # decryptedBoi = decrypt_message(encrypted_message_val, ENCK)
+    decryptedBoi = decrypt(encrypted_blk, ENCK)
     # # todo again why convert to hex from binary
-    # decrypted_HEX_Boi = decryptedBoi.hex()
-    # print('\n')
-    # print(f"FINAL DECRYPTION: {decryptedBoi}")
-    # print("\n")
-    # print(f"FINAL HEX DECRYPTION: {decrypted_HEX_Boi}")
+    decrypted_HEX_Boi = decryptedBoi.hex()
+    print('\n')
+    print(f"FINAL DECRYPTION: {decryptedBoi}")
+    print("\n")
+    print(f"FINAL HEX DECRYPTION: {decrypted_HEX_Boi}")
