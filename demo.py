@@ -145,8 +145,12 @@ def encryptedTextFunc():
         write_out_data_to_pickle("encryption_normal", encrypted_blocks)
 
         print(f"Text Sent: {msn_text} \n Number Of Blocks: {number_Blocks}")
-        # return jsonify(success=True)
         return title
+
+        # return data to the frontend - add just returning a blob or a file
+        # encrypted_blocks_for_Frontend = [b.decode('utf-8') for b in encrypted_blocks]
+        # return encrypted_blocks_for_Frontend
+
 
 
 
@@ -216,7 +220,7 @@ def decryptedTextFunc():
         # print('Receiver public key:', receiver_public_key.public_numbers().x)
 
         print(f"Text Sent: {sent_text} \n Number Of Blocks: {number_Blocks}")
-        # return jsonify(success=True)
+
         return title
 
 

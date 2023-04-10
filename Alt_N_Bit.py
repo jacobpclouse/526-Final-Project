@@ -42,6 +42,8 @@ def generate_key_pair():
 
 
 def split_blocks(msn, n_bits, n_blocks):
+    # n blocks needs to be an integer for this to work
+    n_blocks = int(n_blocks)
     return [msn[i:i + n_bits] for i in range(0, len(msn), n_blocks)]
 
 

@@ -123,6 +123,12 @@ def matrix2bytes(matrix):
 
 def xor_bytes(a, b):
     """ Returns a new byte array with the elements xor'ed. """
+    # return bytes(i ^ j for i, j in zip(a, b))
+    # getting error with just above
+    if isinstance(a, str):
+        a = a.encode()
+    if isinstance(b, str):
+        b = b.encode()
     return bytes(i ^ j for i, j in zip(a, b))
 
 # TODO might not need to pad: subject to removal
