@@ -15,13 +15,16 @@ from Alt_N_Bit import generate_key_pair, pad, encrypt_message, decrypt_message
 from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
 
 from flask import Flask, flash, request, redirect, url_for, render_template,send_from_directory, jsonify # for web back end
-
+from flask_cors import CORS, cross_origin
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Variables
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 demo = Flask(__name__)
-
+# demo = Flask(__name__, static_folder='../frontend-alt-n-bit/dist', static_url_path='')
+Cors = CORS(demo)
+CORS(demo, resources={r'/*': {'origins': '*'}},CORS_SUPPORTS_CREDENTIALS = True)
+demo.config['CORS_HEADERS'] = 'Content-Type'
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Functions
@@ -130,7 +133,20 @@ def mainIndex():
     print('Receiver private key:', receiver_private_key.private_numbers().private_value)
     print('Receiver public key:', receiver_public_key.public_numbers().x)
 
-    return render_template('translate.html', html_title = title, dash_head = dashboardHeader, translated = returned_translated)
+    if request.method == "POST":
+        print("Post Request Recieved!")
+
+    response_object = {'status':'success'}
+    response_object['message'] ='Data added!'
+    # return render_template('index.html', html_title = title, dash_head = dashboardHeader, translated = returned_translated)
+    return jsonify(response_object)
+
+
+@demo.route('/message1', methods=['POST'])
+def receive_message():
+    message = request.json.get('message')
+    print(message)
+    return jsonify(success=True)
 
 
 
