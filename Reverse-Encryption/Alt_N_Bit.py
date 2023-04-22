@@ -157,18 +157,21 @@ def encrypt(msn, n, enck):
     '''***** LEFT OFF HERE!!! ***** '''
     # Step 5: encrypt each block
     # for msn_block in split_blocks(msn, len(enck), n):
-    for msn_block in range(msn_chunks[1],len(msn_chunks),1):
+    # for msn_block in range(msn_chunks[1],len(msn_chunks),1):
+    for msn_block_no in range(1,len(msn_chunks),1):
         
         # BLK[x] = blk[x] XOR H1;
-        # cipher_block = xor_bytes(msn_block, h1)
+        current_block = msn_chunks[msn_block_no]
+        # print(f"MSN block: {current_block}")
+        # print(f"MSN block length: {len(current_block)}")
         cipher_block = ""
-        for i in range(len(msn_block)):
-            cipher_block += chr(ord(msn_block) ^ ord(h1))
+        for i in range(len(current_block)):
+            cipher_block += chr(ord(current_block[i]) ^ ord(h1[i]))
         blocks.append(cipher_block)
 
         # H1 = HASH(H1, H1);
         # h1 = hashlib.sha256(h1+h1).digest()
-        h1 = hashlib.sha256(h1+h1).hexdigest()
+        h1 = hashlib.sha256((h1+h1).encode()).hexdigest()
 
     print(len(blocks) == len(msn))
     return blocks
