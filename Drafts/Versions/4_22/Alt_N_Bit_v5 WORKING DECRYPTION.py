@@ -154,8 +154,9 @@ def encrypt(msn, n, enck):
 
 
     # Step 5: encrypt each block
-    # for msn_block_no in range(1,len(msn_chunks),1):
-    for msn_block_no in range(0,len(msn_chunks),1):
+    # for msn_block in split_blocks(msn, len(enck), n):
+    # for msn_block in range(msn_chunks[1],len(msn_chunks),1):
+    for msn_block_no in range(1,len(msn_chunks),1):
         
         # BLK[x] = blk[x] XOR H1;
         current_block = msn_chunks[msn_block_no]
@@ -185,7 +186,7 @@ def decrypt(blk, n, enck):
     print("blk type of: ",type(blk))
     print("h0 type of: ",type(h0))
     print("enck type of: ",type(enck))
-    blocks = []
+
 
     # Step 1: H1 = HASH(ENCK, H0)
     # h1 = hashlib.sha256(enck + h0).hexdigest()
@@ -205,27 +206,23 @@ def decrypt(blk, n, enck):
     e = ""
     for i in range(len(blk[0])):
         initial_xor = ord(initial_block[i]) ^ ord(h1[i])
+        # print(initial_xor)
         e += chr(initial_xor)
     # e = xor_bytes(blk[0], enck)
     write_to_file(e,'e_in_decryption.txt')
 
-    # first_block = ""
-    # for i in range(len(blk[0])):
-    #     initial_xor2 = ord(initial_block[i]) ^ ord(h1[i])
-    #     first_block += chr(initial_xor2)
-    # blocks.append(first_block)
-
     # Step 3: H1 = HASH(e, H1);
     # print("* e type of: ",type(e))
     # print("* h1 type of: ",type(h1))
+    # h1 = hashlib.sha256(e + h1).digest()
     h1 = hashlib.sha256((e + h1).encode()).hexdigest()
-    # print(e)
+    print(e)
 
 
 
     # Step 4:
-    
-    # for ciphertext_block in range(1,len(blk),1):
+    blocks = []
+    # for ciphertext_block in blk:
     for ciphertext_block in range(1,len(blk),1):
         # blk[x] = BLK[x] XOR H1;
 # --
@@ -241,10 +238,17 @@ def decrypt(blk, n, enck):
         # h1 = hashlib.sha256(h1+h1).digest()
         h1 = hashlib.sha256((h1+h1).encode()).hexdigest()
 
+# -- 
 
+    # revert from hex
+    # from_hex_blocks = []
+    # for hexVal in blocks:
+    #     de_hexed = bytes.fromhex(hexVal)
+    #     # de_hexed = hexVal.decode()
+    #     from_hex_blocks.append(de_hexed)
+    #     # print(de_hexed)
     
 
     # return b''.join(blocks)
-    # print(f"Finally: {str(blocks)}")
     return str(blocks)
     # return from_hex_blocks
