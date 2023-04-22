@@ -153,7 +153,6 @@ def encrypt(msn, n, enck):
     h1 = hashlib.sha256(concat_e_h1).hexdigest()
 
 
-    '''***** LEFT OFF HERE!!! ***** '''
     # Step 5: encrypt each block
     # for msn_block in split_blocks(msn, len(enck), n):
     # for msn_block in range(msn_chunks[1],len(msn_chunks),1):
@@ -217,18 +216,30 @@ def decrypt(blk, n, enck):
     # print("* h1 type of: ",type(h1))
     # h1 = hashlib.sha256(e + h1).digest()
     h1 = hashlib.sha256((e + h1).encode()).hexdigest()
+    print(e)
+
+
 
     # Step 4:
     blocks = []
-    for ciphertext_block in blk:
+    # for ciphertext_block in blk:
+    for ciphertext_block in range(1,len(blk),1):
         # blk[x] = BLK[x] XOR H1;
-        plaintext_block = xor_bytes(ciphertext_block, h1)
+# --
+        current_block = blk[ciphertext_block]
+        # print(f"MSN block: {current_block}")
+        # print(f"MSN block length: {len(current_block)}")
+        plaintext_block = ""
+        for i in range(len(current_block)):
+            plaintext_block += chr(ord(current_block[i]) ^ ord(h1[i]))
         blocks.append(plaintext_block)
 
         # H1 = HASH(H1, H1);
         # h1 = hashlib.sha256(h1+h1).digest()
         h1 = hashlib.sha256((h1+h1).encode()).hexdigest()
-    
+
+# -- 
+
     # revert from hex
     # from_hex_blocks = []
     # for hexVal in blocks:
@@ -238,5 +249,6 @@ def decrypt(blk, n, enck):
     #     # print(de_hexed)
     
 
-    return b''.join(blocks)
+    # return b''.join(blocks)
+    return str(blocks)
     # return from_hex_blocks
