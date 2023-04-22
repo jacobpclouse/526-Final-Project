@@ -33,12 +33,12 @@ print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
 
 print('\n')
 print(f"Final result of encryption: {encrypted_blocks}")
-print(f"TYPE OF ENCRYPTED RESULT: {type(encrypted_blocks)}")
+# print(f"TYPE OF ENCRYPTED RESULT: {type(encrypted_blocks)}")
 
 
 
 ''' DECRYPT '''
-print('\n\n\n')
+print('\n')
 # decrypted_blocks = decrypt(str(encrypted_blocks), number_Blocks)
 decrypted_blocks = decrypt(encrypted_blocks, number_Blocks, the_enck)
 

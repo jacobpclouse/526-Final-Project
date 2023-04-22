@@ -139,8 +139,7 @@ def encrypt(msn, n, enck):
     # for i in range(min(len(e),len(enck))):
         # setup_e = ord(e[i])
         intial_xor = ord(e[i]) ^ ord(h1[i])
-        print(intial_xor)
-        # xored += chr(ord(e[i]) ^ ord(enck[i]))
+        # print(intial_xor)
         xored += chr(intial_xor)
     blocks.append(xored)
 
