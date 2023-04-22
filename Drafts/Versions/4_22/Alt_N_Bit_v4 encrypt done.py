@@ -127,14 +127,15 @@ def encrypt(msn, n, enck):
 
 
 
+    # Step 3: BLK[0] = e XOR ENCK;
+    # blocks.append(xor_bytes(e, enck))
+    xored = ""
     # print("Length of e: ", len(e))
     # print("Length of enck: ", len(enck))
     # print("Length of h1: ", len(h1))
-
-
-    # Step 3: BLK[0] = e XOR ENCK;
+    
     ''' YOU MIGHT HAVE TO USE H1 HERE INSTEAD OF ENCK'''
-    xored = ""
+
     for i in range(len(e)):
     # for i in range(min(len(e),len(enck))):
         # setup_e = ord(e[i])
@@ -183,40 +184,28 @@ def decrypt(blk, n, enck):
     blk: encrypted blocks of size n
     enck: key
     """
-    
+    # Step 1: H1 = HASH(ENCK, H0)
     print("blk type of: ",type(blk))
     print("h0 type of: ",type(h0))
     print("enck type of: ",type(enck))
-
-
-    # Step 1: H1 = HASH(ENCK, H0)
-    # h1 = hashlib.sha256(enck + h0).hexdigest()
-    h1 = hashlib.sha256(enck).hexdigest() # temp not using h0
     
-    # print(f'Length of blk[0]: {len(blk[0])}')
-    # print(f'Length of enck: {len(enck)}')
-    # print(f'ENCK: {enck}')
-
-    # print(f"blk: {blk}")
-    # print(len(blk))
-
+    # h1 = hashlib.sha256(enck + h0).digest()
+    h1 = hashlib.sha256(enck + h0).hexdigest()
+    
 
     # Step 2: e = BLK[0] XOR ENCK;
-    initial_block = blk[0]
-    print(initial_block)
-    e = ""
-    for i in range(len(blk[0])):
-        initial_xor = ord(initial_block[i]) ^ ord(h1[i])
-        # print(initial_xor)
-        e += chr(initial_xor)
-    # e = xor_bytes(blk[0], enck)
+    print(f'Length of blk[0]: {len(blk[0])}')
+    print(f'Length of enck: {len(enck)}')
+    print(f'ENCK: {enck}')
+
+    e = xor_bytes(blk[0], enck)
     write_to_file(e,'e_in_decryption.txt')
 
     # Step 3: H1 = HASH(e, H1);
     # print("* e type of: ",type(e))
     # print("* h1 type of: ",type(h1))
     # h1 = hashlib.sha256(e + h1).digest()
-    h1 = hashlib.sha256((e + h1).encode()).hexdigest()
+    h1 = hashlib.sha256(e + h1.encode()).hexdigest()
 
     # Step 4:
     blocks = []
