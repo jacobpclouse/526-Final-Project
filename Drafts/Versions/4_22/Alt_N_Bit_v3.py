@@ -103,72 +103,39 @@ def encrypt(msn, n, enck):
     print("h0 type of: ",type(h0))
     print("enck type of: ",type(enck))
 
-    '''MAKE IT SO THAT WE CAN CUT THE SIZE OF THE ENCK SO IF N IS LESS THAN THE LENGHT OF IT, WE CUT IT DOWN TO THE LENGTH OF N'''
-
-    # split the msn into the number of n blocks here ***
-    msn_chunks = []
-    for i in range(0, len(msn), len(enck)):
-        chunk = msn[i:i+len(enck)]
-        msn_chunks.append(chunk)
-    # print(msn_chunks)
-
 
     
     # h0 is a public constant, needs to be provided
-    # e = hashlib.sha256(msn + h0).hexdigest()
-    e = hashlib.sha256(msn_chunks[0].encode()).hexdigest() # temporarily removing h0 for testing
+    e = hashlib.sha256(msn.encode() + h0).digest()
+    #e = hashlib.sha256(msn.encode() + h0).hexdigest()
     write_to_file(e,'e_in_encryption.txt')
 
     # Step 2: H1 = HASH(ENCK, H0);
     # h1 = hashlib.sha256(enck + h0).digest()
-    h1 = hashlib.sha256(enck).hexdigest() # temporarily removing h0 for testing
-    # print(f"h1 origin = {h1}")
-    # print(f"h1 string = {str(h1)}")
+    h1 = hashlib.sha256(enck + h0).hexdigest()
 
 
 
     # Step 3: BLK[0] = e XOR ENCK;
-    # blocks.append(xor_bytes(e, enck))
-    xored = ""
-    # print("Length of e: ", len(e))
-    # print("Length of enck: ", len(enck))
-    # print("Length of h1: ", len(h1))
-    
-    ''' YOU MIGHT HAVE TO USE H1 HERE INSTEAD OF ENCK'''
-
-    for i in range(len(e)):
-    # for i in range(min(len(e),len(enck))):
-        # setup_e = ord(e[i])
-        intial_xor = ord(e[i]) ^ ord(h1[i])
-        print(intial_xor)
-        # xored += chr(ord(e[i]) ^ ord(enck[i]))
-        xored += chr(intial_xor)
-    blocks.append(xored)
+    blocks.append(xor_bytes(e, enck))
 
 
     # Step 4: H1 = HASH(e, H1);
     # print(f'type of e: {type(e)}')
     # print(f'type of h1: {type(h1)}')
     # h1 = hashlib.sha256(e + h1).digest()
-    concat_e_h1 = (e + h1).encode()
-    h1 = hashlib.sha256(concat_e_h1).hexdigest()
+    h1 = hashlib.sha256(e + (h1).encode()).hexdigest()
 
 
-    '''***** LEFT OFF HERE!!! ***** '''
     # Step 5: encrypt each block
-    # for msn_block in split_blocks(msn, len(enck), n):
-    for msn_block in range(msn_chunks[1],len(msn_chunks),1):
-        
+    for msn_block in split_blocks(msn, len(enck), n):
         # BLK[x] = blk[x] XOR H1;
-        # cipher_block = xor_bytes(msn_block, h1)
-        cipher_block = ""
-        for i in range(len(msn_block)):
-            cipher_block += chr(ord(msn_block) ^ ord(h1))
+        cipher_block = xor_bytes(msn_block, h1)
         blocks.append(cipher_block)
 
         # H1 = HASH(H1, H1);
         # h1 = hashlib.sha256(h1+h1).digest()
-        h1 = hashlib.sha256(h1+h1).hexdigest()
+        h1 = hashlib.sha256((h1+h1).encode()).hexdigest()
 
     print(len(blocks) == len(msn))
     return blocks
@@ -194,7 +161,7 @@ def decrypt(blk, n, enck):
     print(f'Length of blk[0]: {len(blk[0])}')
     print(f'Length of enck: {len(enck)}')
     print(f'ENCK: {enck}')
-
+    
     e = xor_bytes(blk[0], enck)
     write_to_file(e,'e_in_decryption.txt')
 

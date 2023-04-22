@@ -13,7 +13,7 @@ from cryptography.hazmat.primitives.asymmetric import ec  # For generating initi
 
 
 # image_bytes = b'this is the end my friend i wish it would bend but we mush make amends because we know ken'
-image_bytes = 'this is the end my friend i wish it would bend but we mush make amends because we know ken'
+image_bytes = 'this is the end my friend i wish it would bend but we mush make amends because we know ken this is the end my friend i wish it would bend but we mush make amends because we know ken'
 number_Blocks = '16'
 
 
@@ -22,6 +22,8 @@ number_Blocks = '16'
 sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
 # Grabbing the ENCK
 the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
+# print("the_enck: ", the_enck)
+# print(f"the_enck length: {len(the_enck)}") # this will be 32
 
 # pass data to encryption function
 encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck)
