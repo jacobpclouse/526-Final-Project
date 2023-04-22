@@ -20,7 +20,10 @@ We are using AES block cipher (OFB operation) to integrate the innovative approa
 """
 import hashlib
 
+from PIL import Image
+
 from AES import *
+import io
 
 """Importing Libraries / Modules"""
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -51,6 +54,31 @@ def split_blocks(msn, n_bits, n_blocks):
 aes = AES(b'\x00' * 16)
 h0 = b'\x01' * 16  # iv
 
+def create_image_from_bytes(image_bytes):
+    # create an in-memory stream of the image bytes
+    stream = io.BytesIO(image_bytes)
+
+    # open the image using Pillow
+    image = Image.open(stream)
+
+    # do something with the image here, such as resizing or applying filters
+    # for example, to resize the image to 500x500 pixels:
+    # image = image.resize((500, 500))
+
+    # save the modified image to a new in-memory stream
+    output_stream = io.BytesIO()
+    image.save(output_stream, format='PNG')
+
+    # get the bytes from the output stream
+    output_bytes = output_stream.getvalue()
+
+    # return the bytes of the new image
+    return output_bytes
+
+def read_image_bytes(filename):
+    with open(filename, 'rb') as f:
+        image_bytes = f.read()
+    return image_bytes
 
 # todo integrate approach from paper: review encrypt. Status incomplete
 def encrypt(msn, n, enck):

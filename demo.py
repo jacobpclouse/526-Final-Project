@@ -12,12 +12,13 @@ import pickle
 
 # encryption imports
 from AES import AES
-from Alt_N_Bit import generate_key_pair, encrypt, decrypt, split_blocks
+from Alt_N_Bit import generate_key_pair, encrypt, decrypt, split_blocks, create_image_from_bytes
 # from Alt_N_Bit import generate_key_pair, pad, encrypt_message, decrypt_message
 from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
 
 # Backend imports 
-from flask import Flask, flash, request, redirect, url_for, render_template,send_from_directory, jsonify # for web back end
+from flask import Flask, flash, request, redirect, url_for, render_template, send_from_directory, \
+    jsonify  # for web back end
 from flask_cors import CORS, cross_origin
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -26,8 +27,9 @@ from flask_cors import CORS, cross_origin
 demo = Flask(__name__)
 # without cors, app will refuse the requests from the frontend
 Cors = CORS(demo)
-CORS(demo, resources={r'/*': {'origins': '*'}},CORS_SUPPORTS_CREDENTIALS = True)
+CORS(demo, resources={r'/*': {'origins': '*'}}, CORS_SUPPORTS_CREDENTIALS=True)
 demo.config['CORS_HEADERS'] = 'Content-Type'
+
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Functions
@@ -67,35 +69,54 @@ def read_data_from_pickle(input_file_name):
         print(loaded_byte_array)
 
 
-
-
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Routes
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 ''' ENCRYPTION '''
+
+
 # Route to process encrypted image data ** NEED TO STORE AS BLOB IN UPLOADS
-@demo.route('/encrypt-image',methods=['GET', 'POST'])
+@demo.route('/encrypt-image', methods=['GET', 'POST'])
 def encryptedImageFunc():
-    title = "Route to process encrypted image data - Alt N Bit Encryption Demo - Luna and Jacob " 
+    # todo do image encryption
+    global image_bytes
+    title = "Route to process encrypted image data - Alt N Bit Encryption Demo - Luna and Jacob "
 
-
+    # do something with the image bytes here
     if request.method == "GET":
-    # Program Startup -- Logo Print Out shows that it is working
+        # Program Startup -- Logo Print Out shows that it is working
         our_Logo()
 
-        response_object = {'status':'success'}
-        response_object['message'] ='Data added!'
+        response_object = {'status': 'success'}
+        response_object['message'] = 'Data added!'
         return jsonify(response_object)
 
     if request.method == "POST":
         print("encryptedImageFunc - Post Request Recieved!")
 
+        # number_Blocks = request.json.get('numBlocks')
+        # sent_image = request.json.get('image')  # NEED TO ADJUST FOR THE BLOB
+
         number_Blocks = request.json.get('numBlocks')
-        sent_image = request.json.get('image') # NEED TO ADJUST FOR THE BLOB
+
+        # check if the post request has the file part
+        if 'image' not in request.files:
+            return 'No image uploaded', 400
+
+        # get the file object from the request
+        file = request.files['image']
+
+        # read the bytes from the file object
+        image_bytes = file.read()
 
         # Generate key pairs & Display them
-        # sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+        sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
+        # Grabbing the ENCK
+        the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
+
+        # pass data to encryption function
+        encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck)
 
         # print('\n')
         # print('Sender private key:', sender_private_key.private_numbers().private_value)
@@ -103,24 +124,29 @@ def encryptedImageFunc():
         # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
         # print('Receiver public key:', receiver_public_key.public_numbers().x)
 
-        print(f"Image Sent: {sent_image} \n Number Of Blocks: {number_Blocks}")
-        # return jsonify(success=True)
-        return title
-    
+        print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
 
+        print('\n')
+        print(f"Final result of encryption: {encrypted_blocks}")
+
+        # write to file: (WILL NOT WORK IF IT IS EMPTY)
+        write_out_data_to_pickle("encryption_normal", encrypted_blocks)
+
+        return create_image_from_bytes(image_bytes), 200
+
+        # return jsonify(success=True)
 
 # Route to process encrypted image data
-@demo.route('/encrypt-text',methods=['GET', 'POST'])
+@demo.route('/encrypt-text', methods=['GET', 'POST'])
 def encryptedTextFunc():
-    title = "Route to process encrypted text data - Alt N Bit Encryption Demo - Luna and Jacob " 
-
+    title = "Route to process encrypted text data - Alt N Bit Encryption Demo - Luna and Jacob "
 
     if request.method == "GET":
-    # Program Startup -- Logo Print Out shows that it is working
+        # Program Startup -- Logo Print Out shows that it is working
         our_Logo()
 
-        response_object = {'status':'success'}
-        response_object['message'] ='Data added!'
+        response_object = {'status': 'success'}
+        response_object['message'] = 'Data added!'
         return jsonify(response_object)
 
     if request.method == "POST":
@@ -135,8 +161,7 @@ def encryptedTextFunc():
         the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 
         # pass data to encryption function
-        encrypted_blocks = encrypt(str(msn_text),number_Blocks,the_enck)
-
+        encrypted_blocks = encrypt(str(msn_text), number_Blocks, the_enck)
 
         print('\n')
         print(f"Final result of encryption: {encrypted_blocks}")
@@ -145,36 +170,43 @@ def encryptedTextFunc():
         write_out_data_to_pickle("encryption_normal", encrypted_blocks)
 
         print(f"Text Sent: {msn_text} \n Number Of Blocks: {number_Blocks}")
-        return b''.join(title).hex()
+        return b''.join(encrypted_blocks).hex(), 200
 
         # return data to the frontend - add just returning a blob or a file
         # encrypted_blocks_for_Frontend = [b.decode('utf-8') for b in encrypted_blocks]
         # return encrypted_blocks_for_Frontend
 
 
-
-
-
 ''' DECRYPTION '''
-# Route to decrypt image data ** NEED TO STORE AS BLOB IN UPLOADS
-@demo.route('/decrypt-image',methods=['GET', 'POST'])
-def decryptedImageFunc():
-    title = "Route to decrypt image data - Alt N Bit Encryption Demo - Luna and Jacob " 
 
+
+# Route to decrypt image data ** NEED TO STORE AS BLOB IN UPLOADS
+@demo.route('/decrypt-image', methods=['GET', 'POST'])
+def decryptedImageFunc():
+    title = "Route to decrypt image data - Alt N Bit Encryption Demo - Luna and Jacob "
 
     if request.method == "GET":
-    # Program Startup -- Logo Print Out shows that it is working
+        # Program Startup -- Logo Print Out shows that it is working
         our_Logo()
 
-        response_object = {'status':'success'}
-        response_object['message'] ='Data added!'
+        response_object = {'status': 'success'}
+        response_object['message'] = 'Data added!'
         return jsonify(response_object)
 
     if request.method == "POST":
         print("decryptedImageFunc - Post Request Recieved!")
 
         number_Blocks = request.json.get('numBlocks')
-        sent_image = request.json.get('image') # NEED TO ADJUST FOR THE BLOB
+        # sent_image = request.json.get('image')  # NEED TO ADJUST FOR THE BLOB
+        # check if the post request has the file part
+        if 'image' not in request.files:
+            return 'No image uploaded', 400
+
+        # get the file object from the request
+        file = request.files['image']
+
+        # read the bytes from the file object
+        image_bytes = file.read()
 
         # Generate key pairs & Display them
         # sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
@@ -185,23 +217,24 @@ def decryptedImageFunc():
         # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
         # print('Receiver public key:', receiver_public_key.public_numbers().x)
 
-        print(f"Image Sent: {sent_image} \n Number Of Blocks: {number_Blocks}")
+        decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
+
+        print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
         # return jsonify(success=True)
-        return title
-    
+        return decrypted_blocks
 
 
 # Route to decrypt image data
-@demo.route('/decrypt-text',methods=['GET', 'POST'])
+@demo.route('/decrypt-text', methods=['GET', 'POST'])
 def decryptedTextFunc():
-    title = "Route to decrypt text data - Alt N Bit Encryption Demo - Luna and Jacob " 
+    title = "Route to decrypt text data - Alt N Bit Encryption Demo - Luna and Jacob "
 
     if request.method == "GET":
-    # Program Startup -- Logo Print Out shows that it is working
+        # Program Startup -- Logo Print Out shows that it is working
         our_Logo()
 
-        response_object = {'status':'success'}
-        response_object['message'] ='Data added!'
+        response_object = {'status': 'success'}
+        response_object['message'] = 'Data added!'
         return jsonify(response_object)
 
     if request.method == "POST":
@@ -219,9 +252,14 @@ def decryptedTextFunc():
         # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
         # print('Receiver public key:', receiver_public_key.public_numbers().x)
 
+        decrypted_blocks = decrypt(str(sent_text), number_Blocks)
+
         print(f"Text Sent: {sent_text} \n Number Of Blocks: {number_Blocks}")
 
-        return title
+        return decrypted_blocks
+
+
+
 
 
 # # Route to test if data was being sent properly
@@ -237,5 +275,3 @@ def decryptedTextFunc():
 # -------------------------------------
 if __name__ == '__main__':
     demo.run(debug=True)
-
-
