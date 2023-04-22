@@ -12,7 +12,8 @@ from Alt_N_Bit import generate_key_pair, encrypt, decrypt, split_blocks, create_
 from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
 
 
-image_bytes = b'this is the end my friend i wish it would bend but we mush make amends because we know ken'
+# image_bytes = b'this is the end my friend i wish it would bend but we mush make amends because we know ken'
+image_bytes = 'this is the end my friend i wish it would bend but we mush make amends because we know ken'
 number_Blocks = '16'
 
 
@@ -35,6 +36,7 @@ print(f"Final result of encryption: {encrypted_blocks}")
 
 ''' DECRYPT '''
 print('\n\n\n')
-decrypted_blocks = decrypt(str(encrypted_blocks), number_Blocks)
+# decrypted_blocks = decrypt(str(encrypted_blocks), number_Blocks)
+decrypted_blocks = decrypt(str(encrypted_blocks), number_Blocks, the_enck)
 
 print(f"Final result of decryption: {decrypted_blocks}")
