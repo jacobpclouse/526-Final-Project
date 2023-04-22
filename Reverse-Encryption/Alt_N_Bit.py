@@ -28,6 +28,11 @@ import io
 """Importing Libraries / Modules"""
 from cryptography.hazmat.primitives.asymmetric import ec
 
+# write a value to a file
+def write_to_file(value,filename):
+    with open(filename, "w") as file:
+        file.write(str(value))
+    file.close()
 
 def generate_key_pair():
     """
@@ -90,7 +95,6 @@ def encrypt(msn, n, enck):
     """
 
     """"""
-    print('AltNBit!')
 
     blocks = []
 
@@ -98,32 +102,30 @@ def encrypt(msn, n, enck):
     print("msn type of: ",type(msn))
     print("h0 type of: ",type(h0))
     print("enck type of: ",type(enck))
-    # e = hashlib.sha256(msn + h0).digest()
+
+
+    
+    # h0 is a public constant, needs to be provided
     e = hashlib.sha256(msn.encode() + h0).digest()
+    #e = hashlib.sha256(msn.encode() + h0).hexdigest()
+    write_to_file(e,'e_in_encryption.txt')
 
     # Step 2: H1 = HASH(ENCK, H0);
-    # h1 = hashlib.sha256(enck + h0).digest()
     h1 = hashlib.sha256(enck + h0).digest()
+    # h1 = hashlib.sha256(enck + h0).hexdigest()
+
+
 
     # Step 3: BLK[0] = e XOR ENCK;
     blocks.append(xor_bytes(e, enck))
 
+
     # Step 4: H1 = HASH(e, H1);
+    # print(f'type of e: {type(e)}')
+    # print(f'type of h1: {type(h1)}')
     h1 = hashlib.sha256(e + h1).digest()
+    # h1 = hashlib.sha256((e + h1).encode()).hexdigest()
 
-    """add padding by n-bits"""
-    # # Calculate the number of bytes of padding necessary for the plaintext making it a multiple of the block size
-    # n_bits = len(enck)
-    # padding_len = n_bits - len(msn) % n_bits
-    # # Duplicate 16 length to create the padding and convert it to bytes to operate on it in bytes
-    # padding = bytes([padding_len] * padding_len)
-    # # Add the padding to the plaintext
-    # padded_msn = msn + padding
-    #
-    # msn_blocks = [padded_msn[i:i + n] for i in range(0, len(padded_msn), n)]
-
-    # make each ciphertext block dependent on the previous one
-    # previous_block = enck
 
     # Step 5: encrypt each block
     for msn_block in split_blocks(msn, len(enck), n):
@@ -132,9 +134,8 @@ def encrypt(msn, n, enck):
         blocks.append(cipher_block)
 
         # H1 = HASH(H1, H1);
-        # previous_block = h1
-        # h1 = aes.encrypt_block(previous_block)
-        h1 = hashlib.sha256(h1).digest()
+        h1 = hashlib.sha256(h1+h1).digest()
+        # h1 = hashlib.sha256((h1+h1).encode()).hexdigest()
 
     print(len(blocks) == len(msn))
     return blocks
@@ -155,16 +156,19 @@ def decrypt(blk, enck):
     print("h0 type of: ",type(h0))
     print("enck type of: ",type(enck))
     
-    # h1 = hashlib.sha256((enck + h0).encode()).digest()
-    # h1 = hashlib.sha256((enck + h0_decoded).encode()).digest()
     h1 = hashlib.sha256(enck.encode() + h0).digest()
+    # h1 = hashlib.sha256(enck.encode() + h0).hexdigest()
     
 
     # Step 2: e = BLK[0] XOR ENCK;
     e = xor_bytes(blk[0], enck)
+    write_to_file(e,'e_in_decryption.txt')
 
     # Step 3: H1 = HASH(e, H1);
+    # print("* e type of: ",type(e))
+    # print("* h1 type of: ",type(h1))
     h1 = hashlib.sha256(e + h1).digest()
+    # h1 = hashlib.sha256(e + h1.encode()).hexdigest()
 
     # Step 4:
     blocks = []
@@ -174,6 +178,17 @@ def decrypt(blk, enck):
         blocks.append(plaintext_block)
 
         # H1 = HASH(H1, H1);
-        h1 = hashlib.sha256(h1).digest()
+        h1 = hashlib.sha256(h1+h1).digest()
+        # h1 = hashlib.sha256((h1+h1).encode()).hexdigest()
+    
+    # revert from hex
+    # from_hex_blocks = []
+    # for hexVal in blocks:
+    #     de_hexed = bytes.fromhex(hexVal)
+    #     # de_hexed = hexVal.decode()
+    #     from_hex_blocks.append(de_hexed)
+    #     # print(de_hexed)
+    
 
     return b''.join(blocks)
+    # return from_hex_blocks
