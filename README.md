@@ -20,7 +20,7 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - [x] Need function to adding padding to the test data if it is smaller than the block size (it will just give you an empty result and cause the program to fail during decryption - maybe autokey? Make it random) - Done, implimented just after we get size of ENCK
 - [x] Finally, Add the extra PEP at the end of encryption and decryption
 - [x] Need to port this to a web app (we can wip up a very quick Flask App)
-- [ ] Need to find way to use image (convert to bits, convert back - function)
+- [x] Need to find way to use image (convert to bits, convert back - function) - expanding on this, needs to be a certain size or it will not work
 
 ## Resources:
 - Python hash() method: https://www.geeksforgeeks.org/python-hash-method/
@@ -50,4 +50,5 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Python PIL | Image.save() method: https://www.geeksforgeeks.org/python-pil-image-save-method/
 - How To Create Your First Web Application Using Flask and Python 3: https://www.digitalocean.com/community/tutorials/how-to-create-your-first-web-application-using-flask-and-python-3
 - Connect Vue.js with Flask: https://medium.com/featurepreneur/connect-vuejs-with-flask-1316ea0afecf
-- 
+- Receive or Return files-Flask API: https://medium.com/analytics-vidhya/receive-or-return-files-flask-api-8389d42b0684
+- Python Script to convert Image into Byte array: https://stackoverflow.com/questions/22351254/python-script-to-convert-image-into-byte-array
