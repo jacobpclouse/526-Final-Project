@@ -1,5 +1,6 @@
 # 526-Final-Project
 ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
+> This is the backend, the frontend is stored at: https://github.com/dolnuea/frontend-alt-n-bit
 
 ## Paper: Alternative N-bit Key Data Encryption for Block Ciphers
 
@@ -14,11 +15,11 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 ## Issues:
 - [x] How do we retrieve a public key and multiply it with our own private key? - see in function 'generate_key_pair'
 - [x] How do we determine the block size of our encryption? - measure size of ENCK
-- [ ] How to get the data back after decryption(how do we even do that with the hashing?)
-- [ ] Need adjustable block size (currently it stays at 32)
+- [x] How to get the data back after decryption(how do we even do that with the hashing?)
+- [x] Need adjustable block size (currently it stays at 32)
 - [x] Need function to adding padding to the test data if it is smaller than the block size (it will just give you an empty result and cause the program to fail during decryption - maybe autokey? Make it random) - Done, implimented just after we get size of ENCK
-- [ ] Finally, Add the extra PEP at the end of encryption and decryption
-- [ ] Need to port this to a web app (we can wip up a very quick Flask App)
+- [x] Finally, Add the extra PEP at the end of encryption and decryption
+- [x] Need to port this to a web app (we can wip up a very quick Flask App)
 - [ ] Need to find way to use image (convert to bits, convert back - function)
 
 ## Resources:
