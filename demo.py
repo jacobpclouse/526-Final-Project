@@ -83,6 +83,7 @@ def read_data_from_pickle(input_file_name):
     with open(f'{input_file_name}.pickle', 'rb') as f:
         loaded_byte_array = pickle.load(f)
         print(loaded_byte_array)
+    return loaded_byte_array
 
 
 

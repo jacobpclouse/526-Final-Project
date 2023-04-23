@@ -95,8 +95,6 @@ def encrypt(msn, n, enck, name_e_File_encrypted):
     name_e_File_encrypted: name of file of stored e value
     """
 
-    """"""
-
     blocks = []
 
     # Step 1: e = HASH(MSN, H0);
