@@ -34,9 +34,9 @@ import numpy as np
 
 test_output_name_encryption = 'test_encryption_e.txt'
 test_output_name_decryption = 'test_decryption_e.txt'
-test_list_name_encryption = 'test_encryption_list'
+test_list_name_encryption = 'test_encryption_numpy_array.npy'
 
-image_bytes = '111this is the end my friend i wish it would bend but we mush make amends because we know ken this is the end my friend i wish it would bend but we mush make amends because we know ken'
+image_bytes = 'windows into the soul 111this is the end my friend i wish it would bend but we mush make amends because we know ken this is the end my friend i wish it would bend but we mush make amends because we know ken'
 number_Blocks = '16'
 
 
@@ -58,7 +58,7 @@ print(f"Final result of encryption: {encrypted_blocks}")
 
 
 # Save the array to a file
-np.save('my_array.npy', encrypted_blocks)
+np.save(test_list_name_encryption, encrypted_blocks)
 
 print('\n')
 
@@ -66,9 +66,10 @@ print('\n')
 ''' DECRYPT '''
 # orig decryption:
 # decrypted_blocks = decrypt(encrypted_blocks, number_Blocks, the_enck,test_output_name_decryption)
+# enck_from_user = input("enter enck: ").encode()
 
-from_text_encrypted_blocks = np.load('my_array.npy')
-decrypted_blocks = decrypt(from_text_encrypted_blocks, number_Blocks, the_enck,test_output_name_decryption)
+from_text_encrypted_blocks = np.load(test_list_name_encryption)
+decrypted_blocks = decrypt(from_text_encrypted_blocks, number_Blocks, the_enck, test_output_name_decryption)
 
 print(f"** Final result of decryption: {str(decrypted_blocks)}")
 
