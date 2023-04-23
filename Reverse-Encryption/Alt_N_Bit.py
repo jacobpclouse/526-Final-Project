@@ -34,6 +34,7 @@ def write_to_file(value,filename):
         file.write(str(value))
     file.close()
 
+# generate ecc key pair
 def generate_key_pair():
     """
     Function to Generate sender and receiver key pairs --- This code was sourced from Line 22 of Provable Things
@@ -99,10 +100,11 @@ def encrypt(msn, n, enck, name_e_File_encrypted):
 
     # Step 1: e = HASH(MSN, H0);
     print("msn type of: ",type(msn))
-    print("h0 type of: ",type(h0))
+    
     print("enck type of: ",type(enck))
 
-    '''MAKE IT SO THAT WE CAN CUT THE SIZE OF THE ENCK SO IF N IS LESS THAN THE LENGHT OF IT, WE CUT IT DOWN TO THE LENGTH OF N'''
+    h0 = hashlib.sha256((str(n).encode())).hexdigest()
+    print("h0 type of: ",type(h0))
 
     # split the msn into the number of n blocks here ***
     msn_chunks = []
@@ -114,11 +116,12 @@ def encrypt(msn, n, enck, name_e_File_encrypted):
     # h0 is a public constant, needs to be provided
     # e = hashlib.sha256(msn + h0).hexdigest()
     e = hashlib.sha256(msn_chunks[0].encode()).hexdigest() # temporarily removing h0 for testing
-    # write_to_file(e,'e_in_encryption.txt')
-    write_to_file(e,name_e_File_encrypted)
+    # write_to_file(e,name_e_File_encrypted)
 
     # Step 2: H1 = HASH(ENCK, H0);
-    h1 = hashlib.sha256(enck).hexdigest() # temporarily removing h0 for testing
+    # h1 = hashlib.sha256(enck).hexdigest() # temporarily removing h0 for testing
+    h1 = hashlib.sha256(enck + h0.encode()).hexdigest() 
+    # write_to_file(h1,name_e_File_encrypted)
     # print(f"h1 origin = {h1}")
     # print(f"h1 string = {str(h1)}")
 
@@ -170,16 +173,18 @@ def decrypt(blk, n, enck, name_e_File_decrypted):
     enck: key
 
     """
-    
-    print("blk type of: ",type(blk))
-    print("h0 type of: ",type(h0))
-    print("enck type of: ",type(enck))
     blocks = []
+    print("blk type of: ",type(blk))
+    print("enck type of: ",type(enck))
 
     # Step 1: H1 = HASH(ENCK, H0)
+    h0 = hashlib.sha256((str(n).encode())).hexdigest()
+    print("h0 type of: ",type(h0))
     # h1 = hashlib.sha256(enck + h0).hexdigest()
-    h1 = hashlib.sha256(enck).hexdigest() # temp not using h0
-    
+    # h1 = hashlib.sha256(enck).hexdigest() # temp not using h0
+    h1 = hashlib.sha256(enck + h0.encode()).hexdigest() # temp not using h0
+
+
     # print(f'Length of blk[0]: {len(blk[0])}')
     # print(f'Length of enck: {len(enck)}')
     # print(f'ENCK: {enck}')
@@ -196,13 +201,13 @@ def decrypt(blk, n, enck, name_e_File_decrypted):
         initial_xor = ord(initial_block[i]) ^ ord(h1[i])
         e += chr(initial_xor)
     # e = xor_bytes(blk[0], enck)
-    # write_to_file(e,'e_in_decryption.txt')
-    write_to_file(e,name_e_File_decrypted)
+    # write_to_file(e,name_e_File_decrypted)
 
     # Step 3: H1 = HASH(e, H1);
     # print("* e type of: ",type(e))
     # print("* h1 type of: ",type(h1))
     h1 = hashlib.sha256((e + h1).encode()).hexdigest()
+
     # print(e)
 
 
