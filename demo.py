@@ -57,6 +57,8 @@ image_zip = 'image_zip.zip'
 
 # File Paths
 path_to_uploads = 'UPLOADS'
+
+
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Functions
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -111,9 +113,6 @@ def clean_out_directory(folderPath):
 def create_folder(folderPath):
     if not os.path.exists(folderPath):
         os.makedirs(folderPath)
-        # print(f"Created directory: {folderPath}")
-    # else:
-    #     print(f"Directory already exists: {folderPath}")
 
 
 # -- Function that takes zip name and then an array of files to zip
@@ -123,7 +122,18 @@ def zip_files(zip_name, files_to_zip):
         for file_path in files_to_zip:
             # Add the file to the zip file with its original name
             zip_file.write(file_path, arcname=file_path.split('/')[-1])
-    # print(f"All files zipped into {zip_name}")
+
+
+# --- Function that unzips files from zip file ---
+def unzip_files(zip_name):
+    # Create a ZipFile object with the name of the zip file and mode 'r' for read
+    with zipfile.ZipFile(zip_name, mode='r') as zip_obj:
+        # Print a list of all files in the zip file
+        print("Files in zip file:")
+        for file_name in zip_obj.namelist():
+            print(f"- {file_name}")
+        # Extract all files to the current working directory
+        zip_obj.extractall()
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Routes
