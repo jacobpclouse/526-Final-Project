@@ -24,6 +24,7 @@ from flask_cors import CORS, cross_origin
 import shutil
 import os
 import numpy as np # used to store actual encrypted data in a file and retrieve it
+import zipfile
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Variables
@@ -43,6 +44,7 @@ e_encryption_text_output_name = 'e_val_from_text_encryption.txt'
 e_decryption_text_output_name = 'e_val_from_text_decryption.txt'
 numpy_encryption_text_name = 'numpy_encryption_text_data.npy'
 the_enck_text_name = 'the_enck_text_data.bin'
+text_zip = 'text_zip.zip'
 
 
 # Image File names
@@ -50,6 +52,7 @@ e_encryption_image_output_name = 'e_val_from_image_encryption.txt'
 e_decryption_image_output_name = 'e_val_from_image_decryption.txt'
 numpy_encryption_image_name = 'numpy_encryption_image_data.npy'
 the_enck_image_name = 'the_enck_image_data.bin'
+image_zip = 'image_zip.zip'
 
 
 # File Paths
@@ -111,6 +114,16 @@ def create_folder(folderPath):
         # print(f"Created directory: {folderPath}")
     # else:
     #     print(f"Directory already exists: {folderPath}")
+
+
+# -- Function that takes zip name and then an array of files to zip
+def zip_files(zip_name, files_to_zip):
+    with zipfile.ZipFile(zip_name, 'w') as zip_file:
+        # Add each file to the zip file
+        for file_path in files_to_zip:
+            # Add the file to the zip file with its original name
+            zip_file.write(file_path, arcname=file_path.split('/')[-1])
+    # print(f"All files zipped into {zip_name}")
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Routes
@@ -219,12 +232,15 @@ def encryptedTextFunc():
         encrypted_blocks = encrypt(str(msn_text), number_Blocks, the_enck, e_encryption_text_output_name)
 
         # store enck, store encrypted block data, and move files to the uploads folder for zipping
-        # first enck 
+        # first enck, second encrypted blocks array
         store_the_enck_bin(the_enck,the_enck_text_name)
-        shutil.move(the_enck_text_name, path_to_uploads)
-        # second encrypted blocks array
         np.save(numpy_encryption_text_name, encrypted_blocks)
+        # zip to downloads
+        zip_files(text_zip,[the_enck_text_name,numpy_encryption_text_name])
+        # then move them to the uploads
+        shutil.move(the_enck_text_name, path_to_uploads)
         shutil.move(numpy_encryption_text_name, path_to_uploads)
+        # shutil.move(text_zip, path_to_uploads) # return this to user before moving it
 
 
         # zip and return the file to the users
