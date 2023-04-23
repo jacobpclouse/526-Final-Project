@@ -20,6 +20,10 @@ from flask import Flask, flash, request, redirect, url_for, render_template, sen
     jsonify  # for web back end
 from flask_cors import CORS, cross_origin
 
+# moving files and folders
+import shutil
+import os
+
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Variables
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -41,7 +45,8 @@ e_decryption_image_output_name = 'e_val_from_image_decryption.txt'
 pickle_encryption_image_output_name = 'pickle_from_image_encryption'
 pickle_decryption_image_output_name = 'pickle_from_image_decryption'
 
-
+# File Paths
+path_to_uploads = 'UPLOADS'
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Functions
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -78,6 +83,7 @@ def read_data_from_pickle(input_file_name):
     with open(f'{input_file_name}.pickle', 'rb') as f:
         loaded_byte_array = pickle.load(f)
         print(loaded_byte_array)
+
 
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -178,12 +184,12 @@ def encryptedTextFunc():
         write_out_data_to_pickle(pickle_encryption_text_output_name, encrypted_blocks)
 
         # move the encrypted text and pickle object into outbound folder and then zip and send back to the user
-
+        shutil.move(e_encryption_text_output_name, path_to_uploads)
+        shutil.move(f"{pickle_encryption_text_output_name}.pickle", path_to_uploads)
 
         # return b''.join(encrypted_blocks).hex(), 200
-
-        # return b''.join(encrypted_blocks)
-        return str(encrypted_blocks)
+        return ''.join(encrypted_blocks), 200
+        # return str(encrypted_blocks)
 
 
         # return data to the frontend - add just returning a blob or a file
