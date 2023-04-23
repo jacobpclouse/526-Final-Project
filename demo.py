@@ -30,14 +30,14 @@ CORS(demo, resources={r'/*': {'origins': '*'}}, CORS_SUPPORTS_CREDENTIALS=True)
 demo.config['CORS_HEADERS'] = 'Content-Type'
 
 # Text file names
-e_encryption_text_output_name = 'e_val_from_text_encryption'
-e_decryption_text_output_name = 'e_val_from_text_decryption'
+e_encryption_text_output_name = 'e_val_from_text_encryption.txt'
+e_decryption_text_output_name = 'e_val_from_text_decryption.txt'
 pickle_encryption_text_output_name = 'pickle_from_text_encryption'
 pickle_decryption_text_output_name = 'pickle_from_text_decryption'
 
 # Image File names
-e_encryption_image_output_name = 'e_val_from_image_encryption'
-e_decryption_image_output_name = 'e_val_from_image_decryption'
+e_encryption_image_output_name = 'e_val_from_image_encryption.txt'
+e_decryption_image_output_name = 'e_val_from_image_decryption.txt'
 pickle_encryption_image_output_name = 'pickle_from_image_encryption'
 pickle_decryption_image_output_name = 'pickle_from_image_decryption'
 
@@ -218,15 +218,16 @@ def decryptedImageFunc():
 
         # get the file object from the request
         file = request.files['image']
-
+        print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
         # read the bytes from the file object
         image_bytes = file.read()
         # you need to get the original enck value from the user to decrypt the whole thing
 
 
-        decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
+        # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
+        decrypted_blocks = decrypt(image_bytes, number_Blocks)
 
-        print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
+        
         # return jsonify(success=True)
         return decrypted_blocks
 
@@ -250,13 +251,14 @@ def decryptedTextFunc():
 
         number_Blocks = request.json.get('numBlocks')
         sent_text = request.json.get('text')
-
+        print(f"Text Sent: {sent_text} \n Number Of Blocks: {number_Blocks}")
         # you need to get the original enck value from the user to decrypt the whole thing
         
 
-        decrypted_blocks = decrypt(str(sent_text), number_Blocks)
+        # decrypted_blocks = decrypt(str(sent_text), number_Blocks)
+        decrypted_blocks = decrypt(sent_text, number_Blocks)
 
-        print(f"Text Sent: {sent_text} \n Number Of Blocks: {number_Blocks}")
+        
 
         return decrypted_blocks
 

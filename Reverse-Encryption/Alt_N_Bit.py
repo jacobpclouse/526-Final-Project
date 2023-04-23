@@ -230,4 +230,5 @@ def decrypt(blk, n, enck, name_e_File_decrypted):
 
     return ''.join(blocks)
     # print(f"Finally: {str(blocks)}")
-    # return b''.join(blocks)
+    # return str(blocks)
+    # return blocks
