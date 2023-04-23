@@ -96,7 +96,8 @@ def read_image_bytes(filename):
     return image_bytes
 
 # todo integrate approach from paper: review encrypt. Status incomplete
-def encrypt(msn, n, enck, name_e_File_encrypted):
+# def encrypt(msn, n, enck, name_e_File_encrypted):
+def encrypt(msn, enck):
     """
     msn: message
     n: number of blocks
@@ -170,9 +171,8 @@ def encrypt(msn, n, enck, name_e_File_encrypted):
     return blocks
 
 
-# todo integrate approach from paper and review decrypt, convert back to utf-8. Status incomplete
-# encoding strings with utf8 might be needed to combine bytes and strings
-def decrypt(blk, n, enck, name_e_File_decrypted):
+# def decrypt(blk, n, enck, name_e_File_decrypted):
+def decrypt(blk, enck):
     """
     blk: encrypted blocks of size n
     n: blocks size

@@ -28,7 +28,6 @@ import shutil
 import os
 import numpy as np # used to store actual encrypted data in a file and retrieve it
 import zipfile
-import glob
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Variables
@@ -247,8 +246,7 @@ def encryptedTextFunc():
         the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 
         # pass data to encryption function
-        # encrypted_blocks = encrypt(str(msn_text), number_Blocks, the_enck, e_encryption_text_output_name)
-        encrypted_blocks = encrypt(str(msn_text), the_enck)
+        encrypted_blocks = encrypt(str(msn_text), number_Blocks, the_enck, e_encryption_text_output_name)
 
         print('\n')
         print(f"Final result of encryption: {encrypted_blocks}")
@@ -340,7 +338,7 @@ def decryptedImageFunc():
 
 
 '''TO DO!!!'''
-# Route to decrypt text data
+# Route to decrypt image data
 @demo.route('/decrypt-text', methods=['GET', 'POST'])
 def decryptedTextFunc():
     title = "Route to decrypt text data - Alt N Bit Encryption Demo - Luna and Jacob "
@@ -374,64 +372,15 @@ def decryptedTextFunc():
 
 
 
-# Route to decrypt zip data
-@demo.route('/decrypt-zip', methods=['GET', 'POST'])
-def decryptedZipFunc():
-    title = "Route to decrypt zip data - Alt N Bit Encryption Demo - Luna and Jacob "
-    create_folder(path_to_uploads)
-    # if it exists, clean it out
-    clean_out_directory(path_to_uploads)
 
-    if request.method == "GET":
-        # Program Startup -- Logo Print Out shows that it is working
-        our_Logo()
 
-        response_object = {'status': 'success'}
-        response_object['message'] = 'Data added!'
-        return jsonify(response_object)
+# # Route to test if data was being sent properly
+# @demo.route('/message1', methods=['POST'])
+# def receive_message():
+#     message = request.json.get('message')
+#     print(message)
+#     return jsonify(success=True)
 
-    if request.method == "POST":
-        print("decryptedZipFunc - Post Request Recieved!")
-
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            return 'No Zip uploaded', 400
-
-        # get the file object from the request
-        file = request.files['file']
-        # number_Blocks = request.json.get('numBlocks')
-        # enck = request.json.get('enck')
-        
-        if file.filename.endswith('.zip'):
-            # Save the zip file
-            file.save(file.filename)
-            # Extract the zip file
-            with zipfile.ZipFile(file.filename, 'r') as zip_ref:
-                zip_ref.extractall(path_to_uploads)
-            # print('Zip file uploaded and extracted successfully!')
-        # else:
-        #     print('Invalid file format')
-        # you need to get the original enck value from the user to decrypt the whole thing
-
-        # use glob to get the first .npy file in the directory
-        npy_file = glob.glob(os.path.join(path_to_uploads, "*.npy"))[0]
-        npy_filename = os.path.basename(npy_file)
-
-        # use glob to get the first .bin file in the directory
-        bin_file = glob.glob(os.path.join(path_to_uploads, "*.bin"))[0]
-        bin_filename = os.path.basename(bin_file)
-
-        # print(f"npy filename: {npy_filename} and bin filename: {bin_filename}")
-
-        from_text_encrypted_blocks = np.load(os.path.join(path_to_uploads,npy_filename))
-        from_text_enck = read_enck_to_variable(os.path.join(path_to_uploads,bin_filename))
-
-        # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
-        decrypted_blocks = decrypt(from_text_encrypted_blocks, from_text_enck)
-
-        
-        # return jsonify(success=True)
-        return decrypted_blocks
 
 # -------------------------------------
 # main statement - used to set dev mode and do auto reloading - remove this before going to production
