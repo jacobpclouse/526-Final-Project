@@ -16,12 +16,9 @@ from Alt_N_Bit import generate_key_pair, encrypt, decrypt, split_blocks, create_
 from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
 
 # Backend imports 
-from flask import Flask, flash, request, redirect, url_for, render_template, send_from_directory, send_file, make_response,Response,\
+from flask import Flask, flash, request, redirect, url_for, render_template, send_from_directory, send_file, make_response,\
     jsonify  # for web back end
 from flask_cors import CORS, cross_origin
-import base64
-import json
-from io import BytesIO
 
 # moving files and folders
 import shutil
@@ -152,8 +149,6 @@ def encryptedImageFunc():
     global image_bytes
     title = "Route to process encrypted image data - Alt N Bit Encryption Demo - Luna and Jacob "
     create_folder(path_to_uploads)
-    # clean out the directory:
-    clean_out_directory(path_to_uploads)
 
     # do something with the image bytes here
     if request.method == "GET":
@@ -221,8 +216,6 @@ def encryptedImageFunc():
 def encryptedTextFunc():
     title = "Route to process encrypted text data - Alt N Bit Encryption Demo - Luna and Jacob "
     create_folder(path_to_uploads)
-    # if it exists, clean it out
-    clean_out_directory(path_to_uploads)
 
     if request.method == "GET":
         # Program Startup -- Logo Print Out shows that it is working
@@ -248,49 +241,34 @@ def encryptedTextFunc():
         # pass data to encryption function
         encrypted_blocks = encrypt(str(msn_text), number_Blocks, the_enck, e_encryption_text_output_name)
 
-        print('\n')
-        print(f"Final result of encryption: {encrypted_blocks}")
-
         # store enck, store encrypted block data, and move files to the uploads folder for zipping
         # first enck, second encrypted blocks array
         store_the_enck_bin(the_enck,the_enck_text_name)
         np.save(numpy_encryption_text_name, encrypted_blocks)
-        # zip and return the file to the users
+        # zip to downloads
         zip_files(text_zip,[the_enck_text_name,numpy_encryption_text_name])
-
         # then move them to the uploads
         shutil.move(the_enck_text_name, path_to_uploads)
         shutil.move(numpy_encryption_text_name, path_to_uploads)
         # shutil.move(text_zip, path_to_uploads) # return this to user before moving it
 
 
-        # ## testing download 
-        # attached_zip_file = send_file(text_zip, as_attachment=True)
+        # zip and return the file to the users
 
-        # # replace text with the string of text you want to send
-        # # text_encrypted = ''.join(encrypted_blocks)
-        # text_encrypted = 'hello there'
-
-        # # create a JSON object with the zip file and the text
-        # response = make_response(json.dumps({'zip_file': attached_zip_file, 'text': text_encrypted}))
-
-        # # set the content type of the response to 'application/json'
-        # response.headers['Content-Type'] = 'application/json'
-
-        # # return the JSON object
-        # return json.dumps(response)
-           # replace filename with the name of your zip file
-        # replace filename with the name of your zip file
-        return send_file(text_zip, as_attachment=True)
-    
+        # clean out the directory:
+        clean_out_directory(path_to_uploads)
 
 
 
-        # # return b''.join(encrypted_blocks).hex(), 200
-        # return ''.join(encrypted_blocks), 200
+        print('\n')
+        print(f"Final result of encryption: {encrypted_blocks}")
+        # return b''.join(encrypted_blocks).hex(), 200
+        return ''.join(encrypted_blocks), 200
 
 
         # return data to the frontend - add just returning a blob or a file
+        # encrypted_blocks_for_Frontend = [b.decode('utf-8') for b in encrypted_blocks]
+        # return encrypted_blocks_for_Frontend
 
 
 ''' DECRYPTION '''
@@ -301,8 +279,6 @@ def encryptedTextFunc():
 def decryptedImageFunc():
     title = "Route to decrypt image data - Alt N Bit Encryption Demo - Luna and Jacob "
     create_folder(path_to_uploads)
-    # if it exists, clean it out
-    clean_out_directory(path_to_uploads)
 
     if request.method == "GET":
         # Program Startup -- Logo Print Out shows that it is working
@@ -343,8 +319,6 @@ def decryptedImageFunc():
 def decryptedTextFunc():
     title = "Route to decrypt text data - Alt N Bit Encryption Demo - Luna and Jacob "
     create_folder(path_to_uploads)
-    # if it exists, clean it out
-    clean_out_directory(path_to_uploads)
 
     if request.method == "GET":
         # Program Startup -- Logo Print Out shows that it is working
