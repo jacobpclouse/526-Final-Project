@@ -26,7 +26,7 @@ from AES import *
 import io
 
 """Importing Libraries / Modules"""
-from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
 
 # write a value to a file
 def write_to_file(value,filename):
@@ -58,7 +58,7 @@ def split_blocks(msn, n_bits, n_blocks):
 # todo initialize AES appropriately
 aes = AES(b'\x00' * 16)
 h0 = b'\x01' * 16  # iv
-print(f"h0: {h0}")
+# print(f"h0: {h0}")
 
 def create_image_from_bytes(image_bytes):
     # create an in-memory stream of the image bytes
@@ -87,11 +87,12 @@ def read_image_bytes(filename):
     return image_bytes
 
 # todo integrate approach from paper: review encrypt. Status incomplete
-def encrypt(msn, n, enck):
+def encrypt(msn, n, enck, name_e_File_encrypted):
     """
     msn: message
     n: number of blocks
     enck: key
+    name_e_File_encrypted: name of file of stored e value
     """
 
     """"""
@@ -112,34 +113,26 @@ def encrypt(msn, n, enck):
         msn_chunks.append(chunk)
     # print(msn_chunks)
 
-
-    
     # h0 is a public constant, needs to be provided
     # e = hashlib.sha256(msn + h0).hexdigest()
     e = hashlib.sha256(msn_chunks[0].encode()).hexdigest() # temporarily removing h0 for testing
-    write_to_file(e,'e_in_encryption.txt')
+    # write_to_file(e,'e_in_encryption.txt')
+    write_to_file(e,name_e_File_encrypted)
 
     # Step 2: H1 = HASH(ENCK, H0);
-    # h1 = hashlib.sha256(enck + h0).digest()
     h1 = hashlib.sha256(enck).hexdigest() # temporarily removing h0 for testing
     # print(f"h1 origin = {h1}")
     # print(f"h1 string = {str(h1)}")
-
-
 
     # print("Length of e: ", len(e))
     # print("Length of enck: ", len(enck))
     # print("Length of h1: ", len(h1))
 
-
     # Step 3: BLK[0] = e XOR ENCK;
     ''' YOU MIGHT HAVE TO USE H1 HERE INSTEAD OF ENCK'''
     xored = ""
     for i in range(len(e)):
-    # for i in range(min(len(e),len(enck))):
-        # setup_e = ord(e[i])
         intial_xor = ord(e[i]) ^ ord(h1[i])
-        # print(intial_xor)
         xored += chr(intial_xor)
     blocks.append(xored)
 
@@ -147,13 +140,11 @@ def encrypt(msn, n, enck):
     # Step 4: H1 = HASH(e, H1);
     # print(f'type of e: {type(e)}')
     # print(f'type of h1: {type(h1)}')
-    # h1 = hashlib.sha256(e + h1).digest()
     concat_e_h1 = (e + h1).encode()
     h1 = hashlib.sha256(concat_e_h1).hexdigest()
 
 
     # Step 5: encrypt each block
-    # for msn_block_no in range(1,len(msn_chunks),1):
     for msn_block_no in range(0,len(msn_chunks),1):
         
         # BLK[x] = blk[x] XOR H1;
@@ -166,7 +157,6 @@ def encrypt(msn, n, enck):
         blocks.append(cipher_block)
 
         # H1 = HASH(H1, H1);
-        # h1 = hashlib.sha256(h1+h1).digest()
         h1 = hashlib.sha256((h1+h1).encode()).hexdigest()
 
     print(len(blocks) == len(msn))
@@ -175,10 +165,12 @@ def encrypt(msn, n, enck):
 
 # todo integrate approach from paper and review decrypt, convert back to utf-8. Status incomplete
 # encoding strings with utf8 might be needed to combine bytes and strings
-def decrypt(blk, n, enck):
+def decrypt(blk, n, enck, name_e_File_decrypted):
     """
     blk: encrypted blocks of size n
+    n: blocks size
     enck: key
+
     """
     
     print("blk type of: ",type(blk))
@@ -206,13 +198,8 @@ def decrypt(blk, n, enck):
         initial_xor = ord(initial_block[i]) ^ ord(h1[i])
         e += chr(initial_xor)
     # e = xor_bytes(blk[0], enck)
-    write_to_file(e,'e_in_decryption.txt')
-
-    # first_block = ""
-    # for i in range(len(blk[0])):
-    #     initial_xor2 = ord(initial_block[i]) ^ ord(h1[i])
-    #     first_block += chr(initial_xor2)
-    # blocks.append(first_block)
+    # write_to_file(e,'e_in_decryption.txt')
+    write_to_file(e,name_e_File_decrypted)
 
     # Step 3: H1 = HASH(e, H1);
     # print("* e type of: ",type(e))
@@ -224,7 +211,6 @@ def decrypt(blk, n, enck):
 
     # Step 4:
     
-    # for ciphertext_block in range(1,len(blk),1):
     for ciphertext_block in range(1,len(blk),1):
         # blk[x] = BLK[x] XOR H1;
 # --
@@ -237,7 +223,6 @@ def decrypt(blk, n, enck):
         blocks.append(plaintext_block)
 
         # H1 = HASH(H1, H1);
-        # h1 = hashlib.sha256(h1+h1).digest()
         h1 = hashlib.sha256((h1+h1).encode()).hexdigest()
 
 
@@ -246,4 +231,3 @@ def decrypt(blk, n, enck):
     # return b''.join(blocks)
     # print(f"Finally: {str(blocks)}")
     return str(blocks)
-    # return from_hex_blocks

@@ -12,8 +12,7 @@ import pickle
 
 # encryption imports
 from AES import AES
-from Alt_N_Bit import generate_key_pair, encrypt, decrypt, split_blocks, create_image_from_bytes
-# from Alt_N_Bit import generate_key_pair, pad, encrypt_message, decrypt_message
+from Alt_N_Bit import generate_key_pair, encrypt, decrypt, split_blocks, create_image_from_bytes, write_to_file
 from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
 
 # Backend imports 
@@ -29,6 +28,18 @@ demo = Flask(__name__)
 Cors = CORS(demo)
 CORS(demo, resources={r'/*': {'origins': '*'}}, CORS_SUPPORTS_CREDENTIALS=True)
 demo.config['CORS_HEADERS'] = 'Content-Type'
+
+# Text file names
+e_encryption_text_output_name = 'e_val_from_text_encryption'
+e_decryption_text_output_name = 'e_val_from_text_decryption'
+pickle_encryption_text_output_name = 'pickle_from_text_encryption'
+pickle_decryption_text_output_name = 'pickle_from_text_decryption'
+
+# Image File names
+e_encryption_image_output_name = 'e_val_from_image_encryption'
+e_decryption_image_output_name = 'e_val_from_image_decryption'
+pickle_encryption_image_output_name = 'pickle_from_image_encryption'
+pickle_decryption_image_output_name = 'pickle_from_image_decryption'
 
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -75,7 +86,7 @@ def read_data_from_pickle(input_file_name):
 
 ''' ENCRYPTION '''
 
-
+'''TO DO!!!'''
 # Route to process encrypted image data ** NEED TO STORE AS BLOB IN UPLOADS
 @demo.route('/encrypt-image', methods=['GET', 'POST'])
 def encryptedImageFunc():
@@ -109,30 +120,30 @@ def encryptedImageFunc():
 
         # read the bytes from the file object
         image_bytes = file.read()
-
+        print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
+        
         # Generate key pairs & Display them
         sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
         # Grabbing the ENCK - This needs to be given to the user as a key in order to retrieve their data
         the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 
         # pass data to encryption function
-        encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck)
+        encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck, e_encryption_image_output_name )
 
-
-
-        print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
 
         print('\n')
         print(f"Final result of encryption: {encrypted_blocks}")
 
+
         # write to file: (WILL NOT WORK IF IT IS EMPTY)
-        write_out_data_to_pickle("encryption_normal", encrypted_blocks)
+        write_out_data_to_pickle(pickle_encryption_image_output_name, encrypted_blocks)
 
         return create_image_from_bytes(image_bytes), 200
 
         # return jsonify(success=True)
 
-# Route to process encrypted image data
+
+# Route to process encrypted text data
 @demo.route('/encrypt-text', methods=['GET', 'POST'])
 def encryptedTextFunc():
     title = "Route to process encrypted text data - Alt N Bit Encryption Demo - Luna and Jacob "
@@ -146,10 +157,11 @@ def encryptedTextFunc():
         return jsonify(response_object)
 
     if request.method == "POST":
-        print("encryptedImageFunc - Post Request Recieved!")
+        print("encryptedTextFunc - Post Request Recieved!")
 
         number_Blocks = request.json.get('numBlocks')
         msn_text = request.json.get('text')
+        print(f"Text Sent: {msn_text} \n Number Of Blocks: {number_Blocks}")
 
         # Generate key pairs & get ENK
         sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
@@ -157,16 +169,22 @@ def encryptedTextFunc():
         the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 
         # pass data to encryption function
-        encrypted_blocks = encrypt(str(msn_text), number_Blocks, the_enck)
+        encrypted_blocks = encrypt(str(msn_text), number_Blocks, the_enck, e_encryption_text_output_name)
 
         print('\n')
         print(f"Final result of encryption: {encrypted_blocks}")
 
         # write to file: (WILL NOT WORK IF IT IS EMPTY)
-        write_out_data_to_pickle("encryption_normal", encrypted_blocks)
+        write_out_data_to_pickle(pickle_encryption_text_output_name, encrypted_blocks)
 
-        print(f"Text Sent: {msn_text} \n Number Of Blocks: {number_Blocks}")
-        return b''.join(encrypted_blocks).hex(), 200
+        # move the encrypted text and pickle object into outbound folder and then zip and send back to the user
+
+
+        # return b''.join(encrypted_blocks).hex(), 200
+
+        # return b''.join(encrypted_blocks)
+        return str(encrypted_blocks)
+
 
         # return data to the frontend - add just returning a blob or a file
         # encrypted_blocks_for_Frontend = [b.decode('utf-8') for b in encrypted_blocks]
@@ -175,7 +193,7 @@ def encryptedTextFunc():
 
 ''' DECRYPTION '''
 
-
+'''TO DO!!!'''
 # Route to decrypt image data ** NEED TO STORE AS BLOB IN UPLOADS
 @demo.route('/decrypt-image', methods=['GET', 'POST'])
 def decryptedImageFunc():
@@ -203,15 +221,8 @@ def decryptedImageFunc():
 
         # read the bytes from the file object
         image_bytes = file.read()
+        # you need to get the original enck value from the user to decrypt the whole thing
 
-        # Generate key pairs & Display them
-        # sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
-
-        # print('\n')
-        # print('Sender private key:', sender_private_key.private_numbers().private_value)
-        # print('Sender public key:', sender_public_key.public_numbers().x)
-        # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
-        # print('Receiver public key:', receiver_public_key.public_numbers().x)
 
         decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
 
@@ -220,6 +231,7 @@ def decryptedImageFunc():
         return decrypted_blocks
 
 
+'''TO DO!!!'''
 # Route to decrypt image data
 @demo.route('/decrypt-text', methods=['GET', 'POST'])
 def decryptedTextFunc():
@@ -239,14 +251,8 @@ def decryptedTextFunc():
         number_Blocks = request.json.get('numBlocks')
         sent_text = request.json.get('text')
 
-        # Generate key pairs & Display them
-        # sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
-
-        # print('\n')
-        # print('Sender private key:', sender_private_key.private_numbers().private_value)
-        # print('Sender public key:', sender_public_key.public_numbers().x)
-        # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
-        # print('Receiver public key:', receiver_public_key.public_numbers().x)
+        # you need to get the original enck value from the user to decrypt the whole thing
+        
 
         decrypted_blocks = decrypt(str(sent_text), number_Blocks)
 
