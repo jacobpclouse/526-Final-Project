@@ -58,7 +58,6 @@ def split_blocks(msn, n_bits, n_blocks):
 # todo initialize AES appropriately
 aes = AES(b'\x00' * 16)
 h0 = b'\x01' * 16  # iv
-# print(f"h0: {h0}")
 
 def create_image_from_bytes(image_bytes):
     # create an in-memory stream of the image bytes
@@ -100,11 +99,9 @@ def encrypt(msn, n, enck, name_e_File_encrypted):
     blocks = []
 
     # Step 1: e = HASH(MSN, H0);
-    print("msn type of: ",type(msn))
-    print("h0 type of: ",type(h0))
-    print("enck type of: ",type(enck))
-
-    '''MAKE IT SO THAT WE CAN CUT THE SIZE OF THE ENCK SO IF N IS LESS THAN THE LENGHT OF IT, WE CUT IT DOWN TO THE LENGTH OF N'''
+    # print("msn type of: ",type(msn))
+    # print("h0 type of: ",type(h0))
+    # print("enck type of: ",type(enck))
 
     # split the msn into the number of n blocks here ***
     msn_chunks = []
@@ -117,7 +114,7 @@ def encrypt(msn, n, enck, name_e_File_encrypted):
     # e = hashlib.sha256(msn + h0).hexdigest()
     e = hashlib.sha256(msn_chunks[0].encode()).hexdigest() # temporarily removing h0 for testing
     # write_to_file(e,'e_in_encryption.txt')
-    write_to_file(e,name_e_File_encrypted)
+    # write_to_file(e,name_e_File_encrypted)
 
     # Step 2: H1 = HASH(ENCK, H0);
     h1 = hashlib.sha256(enck).hexdigest() # temporarily removing h0 for testing
@@ -173,9 +170,9 @@ def decrypt(blk, n, enck, name_e_File_decrypted):
 
     """
     
-    print("blk type of: ",type(blk))
-    print("h0 type of: ",type(h0))
-    print("enck type of: ",type(enck))
+    # print("blk type of: ",type(blk))
+    # print("h0 type of: ",type(h0))
+    # print("enck type of: ",type(enck))
     blocks = []
 
     # Step 1: H1 = HASH(ENCK, H0)
@@ -192,14 +189,14 @@ def decrypt(blk, n, enck, name_e_File_decrypted):
 
     # Step 2: e = BLK[0] XOR ENCK;
     initial_block = blk[0]
-    print(initial_block)
+    # print(initial_block)
     e = ""
     for i in range(len(blk[0])):
         initial_xor = ord(initial_block[i]) ^ ord(h1[i])
         e += chr(initial_xor)
     # e = xor_bytes(blk[0], enck)
     # write_to_file(e,'e_in_decryption.txt')
-    write_to_file(e,name_e_File_decrypted)
+    # write_to_file(e,name_e_File_decrypted)
 
     # Step 3: H1 = HASH(e, H1);
     # print("* e type of: ",type(e))

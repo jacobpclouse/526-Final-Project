@@ -16,14 +16,13 @@ from Alt_N_Bit import generate_key_pair, encrypt, decrypt, split_blocks, create_
 from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
 
 # Backend imports 
-from flask import Flask, flash, request, redirect, url_for, render_template, send_from_directory, send_file, \
+from flask import Flask, flash, request, redirect, url_for, render_template, send_from_directory, \
     jsonify  # for web back end
 from flask_cors import CORS, cross_origin
 
 # moving files and folders
 import shutil
 import os
-import numpy as np # used to store actual encrypted data in a file and retrieve it
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Variables
@@ -34,23 +33,17 @@ Cors = CORS(demo)
 CORS(demo, resources={r'/*': {'origins': '*'}}, CORS_SUPPORTS_CREDENTIALS=True)
 demo.config['CORS_HEADERS'] = 'Content-Type'
 
-# array and data names:
-test_list_name_encryption = 'test_encryption_numpy_array.npy'
-the_enck_value = 'the_enck_val.bin'
-
 # Text file names
 e_encryption_text_output_name = 'e_val_from_text_encryption.txt'
 e_decryption_text_output_name = 'e_val_from_text_decryption.txt'
-numpy_encryption_text_name = 'numpy_encryption_text_data.npy'
-the_enck_text_name = 'the_enck_text_data.bin'
-
+pickle_encryption_text_output_name = 'pickle_from_text_encryption'
+pickle_decryption_text_output_name = 'pickle_from_text_decryption'
 
 # Image File names
 e_encryption_image_output_name = 'e_val_from_image_encryption.txt'
 e_decryption_image_output_name = 'e_val_from_image_decryption.txt'
-numpy_encryption_image_name = 'numpy_encryption_image_data.npy'
-the_enck_image_name = 'the_enck_image_data.bin'
-
+pickle_encryption_image_output_name = 'pickle_from_image_encryption'
+pickle_decryption_image_output_name = 'pickle_from_image_decryption'
 
 # File Paths
 path_to_uploads = 'UPLOADS'
@@ -79,38 +72,20 @@ def defang_datetime():
     return current_datetime
 
 
-# --- Function to store data into a bin file for later retrival ---
-def store_the_enck_bin(value,filename):
-    with open(filename, 'wb') as file:
-        file.write(value)
-    file.close()
+# --- Function that saves array data to a pickle file - ie encrypted chunks ---
+def write_out_data_to_pickle(output_file_name, data_array):
+    with open(f'{output_file_name}.pickle', 'wb') as f:
+        pickle.dump(data_array, f)
 
 
-# --- Function to read data into variable from bin ---
-def read_enck_to_variable(textName):
-    with open(textName, 'rb') as f:
-        my_bytes_object = f.read()
-    return my_bytes_object
+# --- Function that reads array data to a pickle file, prints it ---
+def read_data_from_pickle(input_file_name):
+    with open(f'{input_file_name}.pickle', 'rb') as f:
+        loaded_byte_array = pickle.load(f)
+        print(loaded_byte_array)
+    return loaded_byte_array
 
 
-# --- Function to empty out a directory ---
-def clean_out_directory(folderPath):
-    for filename in os.listdir(folderPath):
-        filePath = os.path.join(folderPath, filename)
-        try:
-            if os.path.isfile(filePath):
-                os.unlink(filePath)
-        except Exception as e:
-            print(f"Failed to delete {filePath} due to {e}")
-
-
-# --- Function to check and see if a directory exists and, if not, create that directory ---
-def create_folder(folderPath):
-    if not os.path.exists(folderPath):
-        os.makedirs(folderPath)
-        # print(f"Created directory: {folderPath}")
-    # else:
-    #     print(f"Directory already exists: {folderPath}")
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Routes
@@ -125,7 +100,6 @@ def encryptedImageFunc():
     # todo do image encryption
     global image_bytes
     title = "Route to process encrypted image data - Alt N Bit Encryption Demo - Luna and Jacob "
-    create_folder(path_to_uploads)
 
     # do something with the image bytes here
     if request.method == "GET":
@@ -157,31 +131,19 @@ def encryptedImageFunc():
         
         # Generate key pairs & Display them
         sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
-
         # Grabbing the ENCK - This needs to be given to the user as a key in order to retrieve their data
         the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
-        
+
         # pass data to encryption function
         encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck, e_encryption_image_output_name )
-
-        # store enck, store encrypted block data, and move files to the uploads folder for zipping
-        # first enck 
-        store_the_enck_bin(the_enck,the_enck_image_name)
-        shutil.move(the_enck_image_name, path_to_uploads)
-        # second encrypted blocks array
-        np.save(numpy_encryption_image_name, encrypted_blocks)
-        shutil.move(numpy_encryption_image_name, path_to_uploads)
-
-
-        # zip and return the file to the users
-
-        # clean out the directory:
-        clean_out_directory(path_to_uploads)
-
 
 
         print('\n')
         print(f"Final result of encryption: {encrypted_blocks}")
+
+
+        # write to file: (WILL NOT WORK IF IT IS EMPTY)
+        write_out_data_to_pickle(pickle_encryption_image_output_name, encrypted_blocks)
 
         return create_image_from_bytes(image_bytes), 200
 
@@ -192,7 +154,6 @@ def encryptedImageFunc():
 @demo.route('/encrypt-text', methods=['GET', 'POST'])
 def encryptedTextFunc():
     title = "Route to process encrypted text data - Alt N Bit Encryption Demo - Luna and Jacob "
-    create_folder(path_to_uploads)
 
     if request.method == "GET":
         # Program Startup -- Logo Print Out shows that it is working
@@ -211,33 +172,25 @@ def encryptedTextFunc():
 
         # Generate key pairs & get ENK
         sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
-
         # Grabbing the ENCK
         the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 
         # pass data to encryption function
         encrypted_blocks = encrypt(str(msn_text), number_Blocks, the_enck, e_encryption_text_output_name)
 
-        # store enck, store encrypted block data, and move files to the uploads folder for zipping
-        # first enck 
-        store_the_enck_bin(the_enck,the_enck_text_name)
-        shutil.move(the_enck_text_name, path_to_uploads)
-        # second encrypted blocks array
-        np.save(numpy_encryption_text_name, encrypted_blocks)
-        shutil.move(numpy_encryption_text_name, path_to_uploads)
-
-
-        # zip and return the file to the users
-
-        # clean out the directory:
-        clean_out_directory(path_to_uploads)
-
-
-
         print('\n')
         print(f"Final result of encryption: {encrypted_blocks}")
+
+        # write to file: (WILL NOT WORK IF IT IS EMPTY)
+        write_out_data_to_pickle(pickle_encryption_text_output_name, encrypted_blocks)
+
+        # move the encrypted text and pickle object into outbound folder and then zip and send back to the user
+        shutil.move(e_encryption_text_output_name, path_to_uploads)
+        shutil.move(f"{pickle_encryption_text_output_name}.pickle", path_to_uploads)
+
         # return b''.join(encrypted_blocks).hex(), 200
         return ''.join(encrypted_blocks), 200
+        # return str(encrypted_blocks)
 
 
         # return data to the frontend - add just returning a blob or a file
@@ -252,7 +205,6 @@ def encryptedTextFunc():
 @demo.route('/decrypt-image', methods=['GET', 'POST'])
 def decryptedImageFunc():
     title = "Route to decrypt image data - Alt N Bit Encryption Demo - Luna and Jacob "
-    create_folder(path_to_uploads)
 
     if request.method == "GET":
         # Program Startup -- Logo Print Out shows that it is working
@@ -292,7 +244,6 @@ def decryptedImageFunc():
 @demo.route('/decrypt-text', methods=['GET', 'POST'])
 def decryptedTextFunc():
     title = "Route to decrypt text data - Alt N Bit Encryption Demo - Luna and Jacob "
-    create_folder(path_to_uploads)
 
     if request.method == "GET":
         # Program Startup -- Logo Print Out shows that it is working
