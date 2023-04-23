@@ -112,17 +112,13 @@ def encryptedImageFunc():
 
         # Generate key pairs & Display them
         sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
-        # Grabbing the ENCK
+        # Grabbing the ENCK - This needs to be given to the user as a key in order to retrieve their data
         the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 
         # pass data to encryption function
         encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck)
 
-        # print('\n')
-        # print('Sender private key:', sender_private_key.private_numbers().private_value)
-        # print('Sender public key:', sender_public_key.public_numbers().x)
-        # print('Receiver private key:', receiver_private_key.private_numbers().private_value)
-        # print('Receiver public key:', receiver_public_key.public_numbers().x)
+
 
         print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
 

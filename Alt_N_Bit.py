@@ -28,6 +28,11 @@ import io
 """Importing Libraries / Modules"""
 from cryptography.hazmat.primitives.asymmetric import ec
 
+# write a value to a file
+def write_to_file(value,filename):
+    with open(filename, "w") as file:
+        file.write(str(value))
+    file.close()
 
 def generate_key_pair():
     """
@@ -53,6 +58,7 @@ def split_blocks(msn, n_bits, n_blocks):
 # todo initialize AES appropriately
 aes = AES(b'\x00' * 16)
 h0 = b'\x01' * 16  # iv
+print(f"h0: {h0}")
 
 def create_image_from_bytes(image_bytes):
     # create an in-memory stream of the image bytes
@@ -96,43 +102,72 @@ def encrypt(msn, n, enck):
     print("msn type of: ",type(msn))
     print("h0 type of: ",type(h0))
     print("enck type of: ",type(enck))
-    # e = hashlib.sha256(msn + h0).digest()
-    e = hashlib.sha256(msn.encode() + h0).digest()
+
+    '''MAKE IT SO THAT WE CAN CUT THE SIZE OF THE ENCK SO IF N IS LESS THAN THE LENGHT OF IT, WE CUT IT DOWN TO THE LENGTH OF N'''
+
+    # split the msn into the number of n blocks here ***
+    msn_chunks = []
+    for i in range(0, len(msn), len(enck)):
+        chunk = msn[i:i+len(enck)]
+        msn_chunks.append(chunk)
+    # print(msn_chunks)
+
+
+    
+    # h0 is a public constant, needs to be provided
+    # e = hashlib.sha256(msn + h0).hexdigest()
+    e = hashlib.sha256(msn_chunks[0].encode()).hexdigest() # temporarily removing h0 for testing
+    write_to_file(e,'e_in_encryption.txt')
 
     # Step 2: H1 = HASH(ENCK, H0);
     # h1 = hashlib.sha256(enck + h0).digest()
-    h1 = hashlib.sha256(enck + h0).digest()
+    h1 = hashlib.sha256(enck).hexdigest() # temporarily removing h0 for testing
+    # print(f"h1 origin = {h1}")
+    # print(f"h1 string = {str(h1)}")
+
+
+
+    # print("Length of e: ", len(e))
+    # print("Length of enck: ", len(enck))
+    # print("Length of h1: ", len(h1))
+
 
     # Step 3: BLK[0] = e XOR ENCK;
-    blocks.append(xor_bytes(e, enck))
+    ''' YOU MIGHT HAVE TO USE H1 HERE INSTEAD OF ENCK'''
+    xored = ""
+    for i in range(len(e)):
+    # for i in range(min(len(e),len(enck))):
+        # setup_e = ord(e[i])
+        intial_xor = ord(e[i]) ^ ord(h1[i])
+        # print(intial_xor)
+        xored += chr(intial_xor)
+    blocks.append(xored)
+
 
     # Step 4: H1 = HASH(e, H1);
-    h1 = hashlib.sha256(e + h1).digest()
+    # print(f'type of e: {type(e)}')
+    # print(f'type of h1: {type(h1)}')
+    # h1 = hashlib.sha256(e + h1).digest()
+    concat_e_h1 = (e + h1).encode()
+    h1 = hashlib.sha256(concat_e_h1).hexdigest()
 
-    """add padding by n-bits"""
-    # # Calculate the number of bytes of padding necessary for the plaintext making it a multiple of the block size
-    # n_bits = len(enck)
-    # padding_len = n_bits - len(msn) % n_bits
-    # # Duplicate 16 length to create the padding and convert it to bytes to operate on it in bytes
-    # padding = bytes([padding_len] * padding_len)
-    # # Add the padding to the plaintext
-    # padded_msn = msn + padding
-    #
-    # msn_blocks = [padded_msn[i:i + n] for i in range(0, len(padded_msn), n)]
-
-    # make each ciphertext block dependent on the previous one
-    # previous_block = enck
 
     # Step 5: encrypt each block
-    for msn_block in split_blocks(msn, len(enck), n):
+    # for msn_block_no in range(1,len(msn_chunks),1):
+    for msn_block_no in range(0,len(msn_chunks),1):
+        
         # BLK[x] = blk[x] XOR H1;
-        cipher_block = xor_bytes(msn_block, h1)
+        current_block = msn_chunks[msn_block_no]
+        # print(f"MSN block: {current_block}")
+        # print(f"MSN block length: {len(current_block)}")
+        cipher_block = ""
+        for i in range(len(current_block)):
+            cipher_block += chr(ord(current_block[i]) ^ ord(h1[i]))
         blocks.append(cipher_block)
 
         # H1 = HASH(H1, H1);
-        # previous_block = h1
-        # h1 = aes.encrypt_block(previous_block)
-        h1 = hashlib.sha256(h1).digest()
+        # h1 = hashlib.sha256(h1+h1).digest()
+        h1 = hashlib.sha256((h1+h1).encode()).hexdigest()
 
     print(len(blocks) == len(msn))
     return blocks
@@ -140,28 +175,75 @@ def encrypt(msn, n, enck):
 
 # todo integrate approach from paper and review decrypt, convert back to utf-8. Status incomplete
 # encoding strings with utf8 might be needed to combine bytes and strings
-def decrypt(blk, enck):
+def decrypt(blk, n, enck):
     """
     blk: encrypted blocks of size n
     enck: key
     """
+    
+    print("blk type of: ",type(blk))
+    print("h0 type of: ",type(h0))
+    print("enck type of: ",type(enck))
+    blocks = []
+
     # Step 1: H1 = HASH(ENCK, H0)
-    h1 = hashlib.sha256(enck + h0).digest()
+    # h1 = hashlib.sha256(enck + h0).hexdigest()
+    h1 = hashlib.sha256(enck).hexdigest() # temp not using h0
+    
+    # print(f'Length of blk[0]: {len(blk[0])}')
+    # print(f'Length of enck: {len(enck)}')
+    # print(f'ENCK: {enck}')
+
+    # print(f"blk: {blk}")
+    # print(len(blk))
+
 
     # Step 2: e = BLK[0] XOR ENCK;
-    e = xor_bytes(blk[0], enck)
+    initial_block = blk[0]
+    print(initial_block)
+    e = ""
+    for i in range(len(blk[0])):
+        initial_xor = ord(initial_block[i]) ^ ord(h1[i])
+        e += chr(initial_xor)
+    # e = xor_bytes(blk[0], enck)
+    write_to_file(e,'e_in_decryption.txt')
+
+    # first_block = ""
+    # for i in range(len(blk[0])):
+    #     initial_xor2 = ord(initial_block[i]) ^ ord(h1[i])
+    #     first_block += chr(initial_xor2)
+    # blocks.append(first_block)
 
     # Step 3: H1 = HASH(e, H1);
-    h1 = hashlib.sha256(e + h1).digest()
+    # print("* e type of: ",type(e))
+    # print("* h1 type of: ",type(h1))
+    h1 = hashlib.sha256((e + h1).encode()).hexdigest()
+    # print(e)
+
+
 
     # Step 4:
-    blocks = []
-    for ciphertext_block in blk:
+    
+    # for ciphertext_block in range(1,len(blk),1):
+    for ciphertext_block in range(1,len(blk),1):
         # blk[x] = BLK[x] XOR H1;
-        plaintext_block = xor_bytes(ciphertext_block, h1)
+# --
+        current_block = blk[ciphertext_block]
+        # print(f"MSN block: {current_block}")
+        # print(f"MSN block length: {len(current_block)}")
+        plaintext_block = ""
+        for i in range(len(current_block)):
+            plaintext_block += chr(ord(current_block[i]) ^ ord(h1[i]))
         blocks.append(plaintext_block)
 
         # H1 = HASH(H1, H1);
-        h1 = hashlib.sha256(h1).digest()
+        # h1 = hashlib.sha256(h1+h1).digest()
+        h1 = hashlib.sha256((h1+h1).encode()).hexdigest()
 
-    return b''.join(blocks)
+
+    
+
+    # return b''.join(blocks)
+    # print(f"Finally: {str(blocks)}")
+    return str(blocks)
+    # return from_hex_blocks
