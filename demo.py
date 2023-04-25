@@ -7,7 +7,11 @@
 # Importing Libraries / Modules 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 import datetime
+import io
 import pickle
+
+from PIL import Image
+
 # import random
 
 # encryption imports
@@ -29,6 +33,10 @@ import os
 import numpy as np # used to store actual encrypted data in a file and retrieve it
 import zipfile
 import glob
+
+from sss import sss_question2
+from sss.homomorphism_question2 import downscale_shares, generate_shares, reconstruct_downscaled
+from sss.sss_question2 import read_grayscale_pixels
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Variables
@@ -145,6 +153,7 @@ def unzip_files(zip_name):
 
 ''' ENCRYPTION '''
 
+# todo test & review header not intact
 '''TO DO!!!'''
 # Route to process encrypted image data ** NEED TO STORE AS BLOB IN UPLOADS
 @demo.route('/encrypt-image', methods=['GET', 'POST'])
@@ -207,12 +216,15 @@ def encryptedImageFunc():
         # clean out the directory:
         clean_out_directory(path_to_uploads)
 
-
-
         print('\n')
         print(f"Final result of encryption: {encrypted_blocks}")
 
-        return create_image_from_bytes(image_bytes), 200
+        image_data = io.BytesIO(image_bytes)
+        image = Image.open(image_data)
+
+        # todo send the image and get image from frontend
+
+        return send_file(image, as_attachment=True)
 
         # return jsonify(success=True)
 
@@ -298,6 +310,7 @@ def encryptedTextFunc():
 ''' DECRYPTION '''
 
 '''TO DO!!!'''
+# todo test & review
 # Route to decrypt image data ** NEED TO STORE AS BLOB IN UPLOADS
 @demo.route('/decrypt-image', methods=['GET', 'POST'])
 def decryptedImageFunc():
@@ -325,6 +338,8 @@ def decryptedImageFunc():
 
         # get the file object from the request
         file = request.files['image']
+        # todo check if actually reads bytes https://groups.google.com/g/pocoo-libs/c/Cwr-muUZOts
+        image_bytes = file.stream.read()
         print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
         # read the bytes from the file object
         image_bytes = file.read()
@@ -336,7 +351,20 @@ def decryptedImageFunc():
 
         
         # return jsonify(success=True)
-        return decrypted_blocks
+
+        # convert the string to bytes
+        image_bytes = decrypted_blocks.encode()
+
+        # create an in-memory file-like object
+        file = io.BytesIO(image_bytes)
+
+        # open the image from the file
+        image = Image.open(file)
+
+        # todo send the image and get image from frontend
+
+        # return decrypted_blocks
+        return send_file(image, as_attachment=True)
 
 
 '''TO DO!!!'''
@@ -432,6 +460,53 @@ def decryptedZipFunc():
         
         # return jsonify(success=True)
         return decrypted_blocks
+
+
+"""
+Shamir's secret sharing w/ homomorphism methods
+"""
+# todo test & review
+@demo.route('/generate-shares', methods=['GET', 'POST'])
+def encrypt_sss():
+    # save the uploaded file from client
+    file = request.files['image']
+    file.save('uploaded_image.bmp')
+    i, i_shape = sss_question2.read_grayscale_pixels('uploaded_image.bmp')
+
+    n = request.json.get('numShares')
+    k = request.json.get('numThreshold')
+
+    #  generate downscaled shares using a mock method
+    share_paths = generate_shares(i, n)[1]
+    # share_paths = ["share_grayscale_1.bmp", "share_grayscale_2.bmp", "share_grayscale_3.bmp"]
+    downscaled_shares, paths, img_list = downscale_shares(share_paths)
+
+    # send shares to the client
+    return downscaled_shares[0:k, :], i_shape, send_file(img_list, as_attachment=True)
+
+@demo.route('/reconstruct-image', methods=['GET', 'POST'])
+# todo test & review
+def decrypt_sss():
+    # save all downscaled share images uploaded from the client
+    global shape
+    files = request.files.getlist('file')
+    filenames = []
+    for file in files:
+        filename = file.filename
+        filenames.append(filename)
+        file.save(filename)
+
+    n = request.json.get('numShares')
+    k = request.json.get('numThreshold')
+
+    downscaled_shares = np.array([])
+    for filename in filenames:
+        downscaled_share, shape = list(read_grayscale_pixels(filename)[0]), read_grayscale_pixels(filename)[1]
+        downscaled_shares = np.append(list(read_grayscale_pixels(filename)[0]))
+
+    # reconstruct imgs with their paths with a fake method
+    reconstructed_image = reconstruct_downscaled(downscaled_shares[0:k, :], (shape[0] * 2, shape[1] *2))[2]
+    send_file(reconstructed_image, as_attachment=True)
 
 # -------------------------------------
 # main statement - used to set dev mode and do auto reloading - remove this before going to production

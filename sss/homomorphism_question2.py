@@ -41,21 +41,26 @@ def downscale(path='image.bmp', name='downscaled_image.bmp'):
     downscaled_img.save(name)
 
     img = np.asarray(img)
-    return img.flatten(), img.shape, downscaled_width, downscaled_height
+    return img.flatten(), downscaled_img, img.shape, downscaled_width, downscaled_height
 
 
 # Step 2: Create 3 shares (denoted by I1, I2, I3) of I using the SSS scheme.
-def generate_shares(img):
+def generate_shares(img, n=n):
     return sss_question2.generate_shares(img, 'grayscale', i_0_shape, n=n)
 
 
 # Step 3: Perform the downscale method on all the three shares and obtain the downscaled shares
 # (denoted by Is1, Is2, Is3).
 def downscale_shares(share_paths):
-    share1 = downscale(share_paths[0], 'share1_downscaled.bmp')[0]
-    share2 = downscale(share_paths[1], 'share2_downscaled.bmp')[0]
-    share3 = downscale(share_paths[2], 'share3_downscaled.bmp')[0]
-    return np.array([list(share1), list(share2), list(share3)])
+    shares = np.array([])
+    share_names = []
+    img_list = np.array([])
+    for i in range(len(share_paths)):
+        name = f'share{i}_downscaled.bmp'
+        share_names.append(name)
+        share, img = downscale(share_paths[i], name)[:2]
+        shares, img_list = np.append(list(share)), np.append(img)
+    return shares, share_names, img_list
 
 
 # Step 4: Pick any 2 downscaled shares, i.e., from Is1, Is2, Is3, and reconstruct the downscaled plaintext
@@ -79,14 +84,14 @@ def compute_mae(pixels_0, pixels_s, w, h):
 if __name__ == '__main__':
     i, i_shape = sss_question2.read_grayscale_pixels('image.bmp')
     # step 1
-    i_0, i_0_shape, i_0_w, i_0_h = downscale()
+    i_0, downscaled_img, i_0_shape, i_0_w, i_0_h = downscale()
 
     # step 2
-    shares = generate_shares(i)
+    shares, share_paths = generate_shares(i)
 
     # step 3
-    share_paths = ["share_grayscale_1.bmp", "share_grayscale_2.bmp", "share_grayscale_3.bmp"]
-    downscaled_shares = downscale_shares(share_paths)
+    # share_paths = ["share_grayscale_1.bmp", "share_grayscale_2.bmp", "share_grayscale_3.bmp"]
+    downscaled_shares = downscale_shares(share_paths)[0]
 
     # step 4
     reconstructed_image = reconstruct_downscaled(downscaled_shares[0:k, :], i_shape)

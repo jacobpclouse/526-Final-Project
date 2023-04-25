@@ -85,13 +85,16 @@ def generate_shares(image, mode, shape, n=n):
     shares = np.array(shares)
     print(shares.shape)
     shares_reshaped = shares.reshape(n, *shape)
+    file_names = []
     for i, img in enumerate(shares_reshaped):
         share_img = Image.fromarray(img.astype(np.uint8))
         # Convert to RGB mode
         share_img = share_img.convert('RGB')
-        share_img.save("share_{}_{}.bmp".format(mode, i + 1))
+        name = "share_{}_{}.bmp".format(mode, i + 1)
+        file_names.append(name)
+        share_img.save(name)
 
-    return shares
+    return shares, file_names
 
 
 def reconstruct(shares, shape, k=k, name='reconstructed_grayscale_image.bmp'):
@@ -121,7 +124,7 @@ def reconstruct(shares, shape, k=k, name='reconstructed_grayscale_image.bmp'):
     reconstructed_img = Image.fromarray(reconstructed_pixels.astype(np.uint8))
     reconstructed_img.save(name)
 
-    return name, np.array(reconstructed_pixels)
+    return name, np.array(reconstructed_pixels), reconstructed_img
 
 
 def recolor(path, rgb_pixels, width, height, header):
