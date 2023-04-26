@@ -1,6 +1,6 @@
 from PIL import Image
 
-import sss_question2
+import sss.sss_question2
 import numpy as np
 
 n = 3
