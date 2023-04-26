@@ -290,7 +290,7 @@ def encryptedTextFunc():
         return jsonify(response_object)
 
     if request.method == "POST":
-        print("encryptedTextFunc - Post Request Recieved!")
+        print("encryptedTextFunc - Post Request Received!")
 
         number_Blocks = request.json.get('numBlocks')
         msn_text = request.json.get('text')
@@ -548,21 +548,59 @@ Shamir's secret sharing w/ homomorphism methods
 # todo test & review
 @demo.route('/generate-shares', methods=['GET', 'POST'])
 def encrypt_sss():
-    # save the uploaded file from client
-    file = request.files['image']
-    file.save('uploaded_image.bmp')
-    i, i_shape = sss_question2.read_grayscale_pixels('uploaded_image.bmp')
+    create_folder(path_to_uploads)
+    clean_out_directory(path_to_uploads)
 
-    n = request.json.get('numShares')
-    k = request.json.get('numThreshold')
+    if request.method == "GET":
+        # Program Startup -- Logo Print Out shows that it is working
+        our_Logo()
 
-    #  generate downscaled shares using a mock method
-    share_paths = generate_shares(i, n)[1]
-    # share_paths = ["share_grayscale_1.bmp", "share_grayscale_2.bmp", "share_grayscale_3.bmp"]
-    downscaled_shares, paths, img_list = downscale_shares(share_paths)
+        response_object = {'status': 'success'}
+        response_object['message'] = 'Data added!'
+        return jsonify(response_object)
 
-    # send shares to the client
-    return downscaled_shares[0:k, :], i_shape, send_file(img_list, as_attachment=True)
+    if request.method == "POST":
+        print("encryptedImageFunc - Post Request Received!")
+        if 'image' not in request.files:
+            print("No image uploaded")
+            return 'No image uploaded', 400
+
+        # save the uploaded file from client
+        file = request.files['image']
+        input_filename = "original_" + file.filename
+        file.save(input_filename)
+
+        n = int(request.form['numShares'])
+        k = int(request.form['numThreshold'])
+
+        # start encryption
+        i, i_shape = sss_question2.read_grayscale_pixels(input_filename)
+
+        #  generate downscaled shares
+        share_paths = generate_shares(i, i_shape, n=n)[1]
+        # share_paths = ["share_grayscale_1.bmp", "share_grayscale_2.bmp", "share_grayscale_3.bmp"]
+        downscaled_shares, paths, img_list = downscale_shares(share_paths)
+
+        # zip the downscaled shares, the shape of the original image and generated shares
+        numpy_downscaled_shares_name = 'numpy_downscaled_shares_data.npy'
+        np.save(numpy_downscaled_shares_name, downscaled_shares[0:k, :])
+        shape_original_name = 'shape_original.npy'
+        np.save(shape_original_name, i_shape)
+
+        zip_name = 'generated_shares.zip'
+        zip_files(zip_name, [numpy_downscaled_shares_name, shape_original_name, *paths])
+
+        shutil.move(numpy_downscaled_shares_name, path_to_uploads)
+        shutil.move(shape_original_name, path_to_uploads)
+        for path in paths:
+            shutil.move(path, path_to_uploads)
+
+        print('\n')
+        print(f"Image {file.filename} has been encrypted with SSS!")
+
+
+        # send shares to the client
+        return send_file(zip_name, as_attachment=True)
 
 
 @demo.route('/reconstruct-image', methods=['GET', 'POST'])

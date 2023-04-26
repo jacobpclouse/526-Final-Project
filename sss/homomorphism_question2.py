@@ -3,6 +3,8 @@ from PIL import Image
 import sss.sss_question2
 import numpy as np
 
+from sss import sss_question2
+
 n = 3
 k = 2
 
@@ -45,22 +47,24 @@ def downscale(path='image.bmp', name='downscaled_image.bmp'):
 
 
 # Step 2: Create 3 shares (denoted by I1, I2, I3) of I using the SSS scheme.
-def generate_shares(img, n=n):
+def generate_shares(img, i_0_shape, n=n):
     return sss_question2.generate_shares(img, 'grayscale', i_0_shape, n=n)
 
 
 # Step 3: Perform the downscale method on all the three shares and obtain the downscaled shares
 # (denoted by Is1, Is2, Is3).
 def downscale_shares(share_paths):
-    shares = np.array([])
+    shares = []
     share_names = []
-    img_list = np.array([])
+    img_list = []
     for i in range(len(share_paths)):
         name = f'share{i}_downscaled.bmp'
+        result = downscale(share_paths[i], name)
+        share = list(result[0])
+        shares.append(share)
         share_names.append(name)
-        share, img = downscale(share_paths[i], name)[:2]
-        shares, img_list = np.append(list(share)), np.append(img)
-    return shares, share_names, img_list
+        img_list.append(result[1])
+    return np.array(shares), share_names, np.array(img_list)
 
 
 # Step 4: Pick any 2 downscaled shares, i.e., from Is1, Is2, Is3, and reconstruct the downscaled plaintext
