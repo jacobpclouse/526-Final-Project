@@ -316,13 +316,6 @@ def encryptedTextFunc():
 
 
 
-        # # return b''.join(encrypted_blocks).hex(), 200
-        # return ''.join(encrypted_blocks), 200
-
-
-        # return data to the frontend - add just returning a blob or a file
-
-
 ''' DECRYPTION '''
 
 '''TO DO!!!'''
