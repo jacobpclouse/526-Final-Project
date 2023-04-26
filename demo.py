@@ -403,7 +403,7 @@ def decryptedTextFunc():
 
 
 
-# Route to decrypt zip data
+# Route to decrypt zip data -- TEXT!!!!
 @demo.route('/decrypt-zip', methods=['GET', 'POST'])
 def decryptedZipFunc():
     title = "Route to decrypt zip data - Alt N Bit Encryption Demo - Luna and Jacob "
