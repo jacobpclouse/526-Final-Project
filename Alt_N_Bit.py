@@ -90,6 +90,7 @@ def create_image_from_bytes(image_bytes):
     # return the bytes of the new image
     return output_bytes
 
+# Function to read in image and then output as a string of bytes
 def read_image_bytes(filename):
     with open(filename, 'rb') as f:
         image_bytes = f.read()

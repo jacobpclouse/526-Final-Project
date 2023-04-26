@@ -8,7 +8,6 @@
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 import datetime
 import io
-import pickle
 
 from PIL import Image
 
@@ -16,7 +15,7 @@ from PIL import Image
 
 # encryption imports
 from AES import AES
-from Alt_N_Bit import generate_key_pair, encrypt, decrypt, split_blocks, create_image_from_bytes, write_to_file
+from Alt_N_Bit import generate_key_pair, encrypt, decrypt, split_blocks, create_image_from_bytes, read_image_bytes, write_to_file
 from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
 
 # Backend imports 
@@ -28,11 +27,14 @@ import json
 from io import BytesIO
 
 # moving files and folders
-import shutil
+import shutil # used to move files around and clean folders
 import os
 import numpy as np # used to store actual encrypted data in a file and retrieve it
-import zipfile
-import glob
+import zipfile # used in zipping images
+import glob 
+import uuid # get extensions for images
+import mimetypes # used to get mime data for the image
+import urllib.request
 
 # shamir Secret Sharing stuff
 from sss import sss_question2
@@ -66,6 +68,7 @@ e_decryption_image_output_name = 'e_val_from_image_decryption.txt'
 numpy_encryption_image_name = 'numpy_encryption_image_data.npy'
 the_enck_image_name = 'the_enck_image_data.bin'
 image_zip = 'image_zip.zip'
+TEMP_IMAGE_FILENAME = 'uploaded_unencrypted_image'
 
 
 # File Paths
@@ -178,21 +181,31 @@ def encryptedImageFunc():
     if request.method == "POST":
         print("encryptedImageFunc - Post Request Recieved!")
 
+        # read in number of blocks -- un needed
         # number_Blocks = request.json.get('numBlocks')
-        # sent_image = request.json.get('image')  # NEED TO ADJUST FOR THE BLOB
+        # enck = request.json.get('enck')
+        number_Blocks = 31 # TEMP
 
-        number_Blocks = request.json.get('numBlocks')
 
         # check if the post request has the file part
         if 'image' not in request.files:
+            print("No image uploaded")
             return 'No image uploaded', 400
 
         # get the file object from the request
         file = request.files['image']
 
+        # store image temp
+        DONOTUSE_file_name, extension = os.path.splitext(file.filename)
+        temp_image_name_internal = f"{TEMP_IMAGE_FILENAME}{extension}"
+        # file.save(os.path.join(path_to_uploads, temp_image_name_internal))
+        file.save(temp_image_name_internal)
+
+
         # read the bytes from the file object
         image_bytes = file.read()
-        print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
+        # print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
+        # print(f"Image Sent: {image_bytes}")
         
         # Generate key pairs & Display them
         sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
@@ -201,7 +214,8 @@ def encryptedImageFunc():
         the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
         
         # pass data to encryption function
-        encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck, e_encryption_image_output_name )
+        # encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck, e_encryption_image_output_name )
+        encrypted_blocks = encrypt(str(image_bytes), the_enck)
 
         # store enck, store encrypted block data, and move files to the uploads folder for zipping
         # first enck 
@@ -220,13 +234,14 @@ def encryptedImageFunc():
         print('\n')
         print(f"Final result of encryption: {encrypted_blocks}")
 
+
+        # get mime data for original image
         image_data = io.BytesIO(image_bytes)
         image = Image.open(image_data)
 
         # todo send the image and get image from frontend
 
         return send_file(image, as_attachment=True)
-
         # return jsonify(success=True)
 
 
