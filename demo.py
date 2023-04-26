@@ -458,7 +458,8 @@ def decryptedZipFunc():
         # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
         decrypted_blocks = decrypt(from_text_encrypted_blocks, from_text_enck)
 
-        
+        # Print out the data: 
+        print(f"Decrypted: {decrypted_blocks}")
         # return jsonify(success=True)
         return decrypted_blocks
 
