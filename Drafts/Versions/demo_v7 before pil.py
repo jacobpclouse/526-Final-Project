@@ -7,7 +7,6 @@
 # Importing Libraries / Modules 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 import datetime
-from distutils import extension
 import io
 
 from PIL import Image
@@ -244,10 +243,10 @@ def encryptedImageFunc():
         image = Image.open(io.BytesIO(image_data))
 
 
-        # # Convert the PIL Image object to a numpy array
+        # Convert the PIL Image object to a numpy array
         image_array = np.array(image)
-        write_to_file(image_array,'text_out.txt')
         # print(f"Image Shape: {image_array.shape}")
+        # image_bytes = file.read()
         # # print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
         # # print(f"Image Sent: {image_bytes}")
         
@@ -430,11 +429,10 @@ def decryptedImageFunc():
         # print(f"npy filename: {npy_filename}, bin filename: {bin_filename}, ext is: {thisExtension}")
 
         from_image_enck = read_enck_to_variable(os.path.join(path_to_uploads,bin_filename))
-        from_image_encrypted_blocks = np.load(os.path.join(path_to_uploads,npy_filename))
-        # path_to_encrypted = os.path.join(path_to_uploads, npy_filename)
-        # encrypted_blocks = np.load(path_to_encrypted)
-        # encrypted_blocks = np.load(path_to_encrypted)
-        # from_image_encrypted_blocks = Image.fromarray(np.uint8(encrypted_blocks))
+        # from_image_encrypted_blocks = np.load(os.path.join(path_to_uploads,npy_filename))
+        path_to_encrypted = os.path.join(path_to_uploads, npy_filename)
+        encrypted_blocks = np.load(path_to_encrypted)
+        from_image_encrypted_blocks = Image.fromarray(np.uint8(encrypted_blocks))
         
 
 
@@ -447,20 +445,13 @@ def decryptedImageFunc():
 
         # print('decrypt')
         print(f"Decrypted: {decrypted_blocks}")
-        output_name = f"{OUTBOUND_DECRYPTED_IMAGE_FILENAME}.{thisExtension}"
-        # decrypted_image = Image.fromarray(np.uint8(decrypted_blocks))
-
-        # # Assuming 'output_name' is the name of the file you want to save the image to
-        # decrypted_image.save(output_name)
-
-        # # Create a new PIL Image object from the numpy array
-        # new_image = Image.fromarray(decrypted_blocks)
-
-        # # Display the image
-        # new_image.show()
 
 
+        # Create a new PIL Image object from the numpy array
+        new_image = Image.fromarray(decrypted_blocks)
 
+        # Display the image
+        new_image.show()
         # # todo check if actually reads bytes https://groups.google.com/g/pocoo-libs/c/Cwr-muUZOts
         # image_bytes = file.stream.read()
         # # read the bytes from the file object

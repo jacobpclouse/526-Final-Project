@@ -31,6 +31,7 @@ We are using AES block cipher (OFB operation) to integrate the innovative approa
 import hashlib
 
 from PIL import Image
+import numpy as np
 
 from AES import *
 import io
@@ -239,3 +240,41 @@ def decrypt(blk, enck):
     return ''.join(blocks)
     # print(f"Finally: {str(blocks)}")
     # return b''.join(blocks)
+
+
+
+# def decrypt(blk, n, enck, name_e_File_decrypted):
+def decryptImage(blk, enck):
+    """
+    blk: encrypted blocks of size n
+    n: blocks size
+    enck: key
+
+    """
+    blocks = []
+
+    # Step 1: H1 = HASH(ENCK, H0)
+    h1 = hashlib.sha256(enck).hexdigest() # temp not using h0
+    # Step 2: e = BLK[0] XOR ENCK;
+    initial_block = blk[0]
+    e = ""
+    for i in range(len(blk[0])):
+        initial_xor = ord(initial_block[i]) ^ ord(h1[i])
+        e += chr(initial_xor)
+    # Step 3: H1 = HASH(e, H1);
+    h1 = hashlib.sha256((e + h1).encode()).hexdigest()
+    # Step 4:
+    for ciphertext_block in range(1,len(blk),1):
+        current_block = blk[ciphertext_block]
+        plaintext_block = ""
+        for i in range(len(current_block)):
+            plaintext_block += chr(ord(current_block[i]) ^ ord(h1[i]))
+        blocks.append(plaintext_block)
+        # H1 = HASH(H1, H1);
+        h1 = hashlib.sha256((h1+h1).encode()).hexdigest()
+    # return ''.join(blocks)
+    output = ''.join(blocks)
+    print("Hell yeahnumpy rules...")
+    # decrypted_np = np.fromstring(blocks.replace('\n','').encode(), dtype=np.uint8)
+    write_to_file(output,'numpy.txt')
+    return np.array(output)

@@ -15,6 +15,10 @@ with builtins.open(filename, 'rb') as file:
 # Create a PIL Image object from the bytes
 image = Image.open(io.BytesIO(image_data))
 
+# Save the image object to a file
+with open('output.txt', 'w') as f:
+    f.write(str(image))
+
 
 # Convert the PIL Image object to a numpy array
 image_array = np.array(image)
