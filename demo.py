@@ -34,6 +34,7 @@ import numpy as np # used to store actual encrypted data in a file and retrieve 
 import zipfile
 import glob
 
+# shamir Secret Sharing stuff
 from sss import sss_question2
 from sss.homomorphism_question2 import downscale_shares, generate_shares, reconstruct_downscaled
 from sss.sss_question2 import read_grayscale_pixels
@@ -483,6 +484,7 @@ def encrypt_sss():
 
     # send shares to the client
     return downscaled_shares[0:k, :], i_shape, send_file(img_list, as_attachment=True)
+
 
 @demo.route('/reconstruct-image', methods=['GET', 'POST'])
 # todo test & review
