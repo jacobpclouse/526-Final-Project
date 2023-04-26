@@ -453,8 +453,6 @@ def decryptedImageFunc():
         output_name = f"{OUTBOUND_DECRYPTED_IMAGE_FILENAME}.{thisExtension}"
         # Create a new PIL Image object from the numpy array
         output_name = Image.fromarray(decrypted_blocks)
-        # decrypted_image = Image.fromarray(np.uint8(decrypted_blocks))
-
         # # Assuming 'output_name' is the name of the file you want to save the image to
         # decrypted_image.save(output_name)
 
