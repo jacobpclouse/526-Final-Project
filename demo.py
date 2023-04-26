@@ -33,8 +33,8 @@ import numpy as np # used to store actual encrypted data in a file and retrieve 
 import zipfile # used in zipping images
 import glob 
 import uuid # get extensions for images
-import mimetypes # used to get mime data for the image
-import urllib.request
+import magic # used to get mime data for the image
+
 
 # shamir Secret Sharing stuff
 from sss import sss_question2
@@ -63,8 +63,8 @@ text_zip = 'text_zip.zip'
 
 
 # Image File names
-e_encryption_image_output_name = 'e_val_from_image_encryption.txt'
-e_decryption_image_output_name = 'e_val_from_image_decryption.txt'
+
+mime_data_encryption_image= 'mime_data_encryption_image_data.txt'
 numpy_encryption_image_name = 'numpy_encryption_image_data.npy'
 the_enck_image_name = 'the_enck_image_data.bin'
 image_zip = 'image_zip.zip'
@@ -151,6 +151,14 @@ def unzip_files(zip_name):
         # Extract all files to the current working directory
         zip_obj.extractall()
 
+
+# --- Function to get the mimedata of an uploaded image for encryption ---
+def get_image_mime_data(targetImage,outputFileName):
+    mime_data = magic.from_file(targetImage, mime=True) # grab mime data
+    with open(outputFileName, 'w') as mime_file:# Save the mime data to a file
+        mime_file.write(mime_data)
+
+
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Routes
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -198,7 +206,6 @@ def encryptedImageFunc():
         # store image temp
         DONOTUSE_file_name, extension = os.path.splitext(file.filename)
         temp_image_name_internal = f"{TEMP_IMAGE_FILENAME}{extension}"
-        # file.save(os.path.join(path_to_uploads, temp_image_name_internal))
         file.save(temp_image_name_internal)
 
 
@@ -217,32 +224,34 @@ def encryptedImageFunc():
         # encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck, e_encryption_image_output_name )
         encrypted_blocks = encrypt(str(image_bytes), the_enck)
 
-        # store enck, store encrypted block data, and move files to the uploads folder for zipping
-        # first enck 
+        # store enck data and encrypted data into files for zipping
         store_the_enck_bin(the_enck,the_enck_image_name)
-        shutil.move(the_enck_image_name, path_to_uploads)
-        # second encrypted blocks array
         np.save(numpy_encryption_image_name, encrypted_blocks)
-        shutil.move(numpy_encryption_image_name, path_to_uploads)
-
+        get_image_mime_data(temp_image_name_internal,mime_data_encryption_image)
 
         # zip and return the file to the users
+        zip_files(image_zip,[the_enck_image_name,numpy_encryption_image_name,mime_data_encryption_image])
+
+        # move data to uploads for removal
+        shutil.move(the_enck_image_name, path_to_uploads)
+        shutil.move(numpy_encryption_image_name, path_to_uploads)
+        shutil.move(mime_data_encryption_image, path_to_uploads)
 
         # clean out the directory:
         clean_out_directory(path_to_uploads)
 
         print('\n')
-        print(f"Final result of encryption: {encrypted_blocks}")
+        print(f"Image {file.filename} has been encrypted!")
+        # print(f"Final result of encryption: {encrypted_blocks}")
+        return send_file(image_zip, as_attachment=True)
+        # # get mime data for original image
+        # image_data = io.BytesIO(image_bytes)
+        # image = Image.open(image_data)
 
+        # # todo send the image and get image from frontend
 
-        # get mime data for original image
-        image_data = io.BytesIO(image_bytes)
-        image = Image.open(image_data)
-
-        # todo send the image and get image from frontend
-
-        return send_file(image, as_attachment=True)
-        # return jsonify(success=True)
+        # return send_file(image, as_attachment=True)
+        # # return jsonify(success=True)
 
 
 # Route to process encrypted text data
