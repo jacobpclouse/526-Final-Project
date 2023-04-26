@@ -166,6 +166,13 @@ def delete_zip_file(extraZip):
         os.remove(extraZip)
         print(f"{extraZip} has been deleted.")
 
+# --- Function to get extension for retrieval --
+def need_extension(filename):
+    name, extension = filename.split(".")
+    upperCaseExt = extension.upper()  
+    print(upperCaseExt)
+    return upperCaseExt
+
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Routes
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -213,35 +220,43 @@ def encryptedImageFunc():
         file = request.files['image']
 
         # store image temp
-        DONOTUSE_file_name, extension = os.path.splitext(file.filename)
-        temp_image_name_internal = f"{TEMP_IMAGE_FILENAME}{extension}"
+        # DONOTUSE_file_name, extension = os.path.splitext(file.filename)
+        extension = need_extension(file.filename)
+        temp_image_name_internal = f"{TEMP_IMAGE_FILENAME}.{extension}"
         file.save(temp_image_name_internal)
         orig_name = file.filename
-
-    
-        # read the bytes from the file object
-        with builtins.open(temp_image_name_internal, 'rb') as file:
-            # Read the content of the image file
-            image_data = file.read()
-
-        # Convert the image data to a NumPy array
-        image_array = np.frombuffer(image_data, dtype=np.uint8)
-
-        # Convert the NumPy array to bytes
-        image_bytes = image_array.tobytes()
-        # image_bytes = file.read()
-        # # print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
-        # # print(f"Image Sent: {image_bytes}")
-        
+  
         # Generate key pairs & Display them
         sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
 
         # Grabbing the ENCK - This needs to be given to the user as a key in order to retrieve their data
         the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
+
+
+
+        # read the bytes from the file object
+        with builtins.open(temp_image_name_internal, 'rb') as file:
+            # Read the content of the image file
+            image_data = file.read()
+
+        # Create a PIL Image object from the bytes
+        image = Image.open(io.BytesIO(image_data))
+
+
+        # Convert the PIL Image object to a numpy array
+        image_array = np.array(image)
+
+        # Display the shape of the numpy array
+        print(f"Image Shape: {image_array.shape}")
+        # image_bytes = file.read()
+        # # print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
+        # # print(f"Image Sent: {image_bytes}")
+        
         
         # pass data to encryption function
         # encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck, e_encryption_image_output_name )
-        encrypted_blocks = encrypt(str(image_bytes), the_enck)
+        # encrypted_blocks = encrypt(str(image_bytes), the_enck)
+        encrypted_blocks = encrypt(str(image_array), the_enck)
 
         # store enck data and encrypted data into files for zipping
         store_the_enck_bin(the_enck,the_enck_image_name)
