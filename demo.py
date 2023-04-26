@@ -474,25 +474,34 @@ def decryptedImageFunc():
         # print(f"From enck: {from_image_enck}")
         # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
         decrypted_blocks = decryptImage(from_image_encrypted_blocks, from_image_enck)
-        print(decrypted_blocks)
+        # print(decrypted_blocks)
         
-        print("Made it past decryption")
+        print(f"Made it past decryption, type: {type(decrypted_blocks)}")
 
         output_name = f"{OUTBOUND_DECRYPTED_IMAGE_FILENAME}.{thisExtension}"
-        encoded_blocks = decrypted_blocks.encode()
-        # Convert the bytes to a numpy array
-        image_nparray = np.frombuffer(encoded_blocks, dtype=np.uint8)
 
-        # Convert the numpy array to an Image object
-        image = Image.fromarray(image_nparray)
+        arr = np.array(decrypted_blocks)
+        # print(arr)
+        # create a PIL image from the array
+        # img = Image.fromarray(arr)
+        img = Image.fromarray(arr, mode='RGB')
+        # save the image to a file
+        img.save(output_name)
 
-        # Save the image to a file -- this isn't working for some reason
-        image.save(output_name)
 
-        # # Create a new PIL Image object from the numpy array
+        #         # # Create a new PIL Image object from the numpy array
         # new_image = Image.fromarray(encoded_blocks)
         # # Save the image to a file
         # new_image.save('new_image.jpg')
+
+
+        # Convert the bytes to a numpy array
+        # image_nparray = np.frombuffer(encoded_blocks, dtype=np.uint8)
+        # # Convert the numpy array to an Image object
+        # image = Image.fromarray(image_nparray)
+        # # Save the image to a file -- this isn't working for some reason
+        # image.save(output_name)
+
 
         # Unflatten the array
         # arr = image_nparray.reshape(my_image_shape)
@@ -522,7 +531,6 @@ def decryptedImageFunc():
         # decrypted_blocks = decrypt(image_bytes, number_Blocks)
 
         
-        return jsonify(success=True)
 
         # # convert the string to bytes
         # image_bytes = decrypted_blocks.encode()
@@ -536,7 +544,8 @@ def decryptedImageFunc():
         # # todo send the image and get image from frontend
 
         # # return decrypted_blocks
-        # return send_file(image, as_attachment=True)
+        return send_file(new_image, as_attachment=True)
+        # return jsonify(success=True)
 
 
 '''TO DO!!!'''

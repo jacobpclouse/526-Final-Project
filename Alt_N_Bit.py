@@ -280,3 +280,4 @@ def decryptImage(blk, enck):
     write_to_file(output,'numpy_after_decryption.txt')
     print(len(output))
     return ''.join(blocks)
+    # return blocks
