@@ -69,6 +69,7 @@ numpy_encryption_image_name = 'numpy_encryption_image_data.npy'
 the_enck_image_name = 'the_enck_image_data.bin'
 image_zip = 'image_zip.zip'
 TEMP_IMAGE_FILENAME = 'uploaded_unencrypted_image'
+OUTBOUND_DECRYPTED_IMAGE_FILENAME = 'decrypted_image'
 
 
 # File Paths
@@ -199,7 +200,7 @@ def encryptedImageFunc():
         # read in number of blocks -- un needed
         # number_Blocks = request.json.get('numBlocks')
         # enck = request.json.get('enck')
-        number_Blocks = 31 # TEMP
+        number_Blocks = 32 # TEMP - getting this from the user causes a 400 bad request error
 
 
         # check if the post request has the file part
@@ -235,7 +236,7 @@ def encryptedImageFunc():
         store_the_enck_bin(the_enck,the_enck_image_name)
         np.save(numpy_encryption_image_name, encrypted_blocks)
         get_image_mime_data(temp_image_name_internal,mime_data_encryption_image)
-
+        
         # zip and return the file to the users
         zip_files(image_zip,[the_enck_image_name,numpy_encryption_image_name,mime_data_encryption_image])
 
@@ -243,6 +244,15 @@ def encryptedImageFunc():
         shutil.move(the_enck_image_name, path_to_uploads)
         shutil.move(numpy_encryption_image_name, path_to_uploads)
         shutil.move(mime_data_encryption_image, path_to_uploads)
+
+        # this goes after move with shutil to uploads
+        # # files_to_zip = [the_enck_image_name,numpy_encryption_image_name,mime_data_encryption_image]
+        # # os.chdir(path_to_uploads)
+        # old_name_zip = shutil.make_archive(image_zip, "zip", root_dir=path_to_uploads)
+        # # rename the original zip file
+        # os.rename(old_name_zip, image_zip)
+
+
 
         # clean out the directory:
         clean_out_directory(path_to_uploads)
@@ -359,41 +369,71 @@ def decryptedImageFunc():
     if request.method == "POST":
         print("decryptedImageFunc - Post Request Recieved!")
 
-        number_Blocks = request.json.get('numBlocks')
-        # sent_image = request.json.get('image')  # NEED TO ADJUST FOR THE BLOB
         # check if the post request has the file part
-        if 'image' not in request.files:
-            return 'No image uploaded', 400
+        if 'file' not in request.files:
+            return 'No Zip uploaded', 400
 
         # get the file object from the request
-        file = request.files['image']
-        # todo check if actually reads bytes https://groups.google.com/g/pocoo-libs/c/Cwr-muUZOts
-        image_bytes = file.stream.read()
-        print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
-        # read the bytes from the file object
-        image_bytes = file.read()
-        # you need to get the original enck value from the user to decrypt the whole thing
+        file = request.files['file']
+        # number_Blocks = request.json.get('numBlocks')
+        # enck = request.json.get('enck')
+        number_Blocks = 32 # TEMP - getting this from the user causes a 400 bad request error
 
+        if file.filename.endswith('.zip'):
+            # Save the zip file
+            file.save(file.filename)
+            # Extract the zip file
+            with zipfile.ZipFile(file.filename, 'r') as zip_ref:
+                zip_ref.extractall(path_to_uploads)
+
+        # use glob to get the first .npy file in the directory
+        npy_file = glob.glob(os.path.join(path_to_uploads, "*.npy"))[0]
+        npy_filename = os.path.basename(npy_file)
+
+        # use glob to get the first .bin file in the directory
+        bin_file = glob.glob(os.path.join(path_to_uploads, "*.bin"))[0]
+        bin_filename = os.path.basename(bin_file)
+
+        # use glob to get the first .txt file in the directory - mime info
+        txt_file = glob.glob(os.path.join(path_to_uploads, "*.txt"))[0]
+        txt_filename = os.path.basename(txt_file)
+
+        # print(f"npy filename: {npy_filename} and bin filename: {bin_filename}")
+
+        from_text_encrypted_blocks = np.load()
+        from_text_enck = read_enck_to_variable(os.path.join(path_to_uploads,bin_filename))
 
         # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
-        decrypted_blocks = decrypt(image_bytes, number_Blocks)
+        decrypted_blocks = decrypt(from_text_encrypted_blocks, from_text_enck)
+
+        print('decrypt')
+
+        # # todo check if actually reads bytes https://groups.google.com/g/pocoo-libs/c/Cwr-muUZOts
+        # image_bytes = file.stream.read()
+        # # read the bytes from the file object
+        # image_bytes = file.read()
+        # # you need to get the original enck value from the user to decrypt the whole thing
+
+
+        # # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
+        # decrypted_blocks = decrypt(image_bytes, number_Blocks)
 
         
-        # return jsonify(success=True)
+        return jsonify(success=True)
 
-        # convert the string to bytes
-        image_bytes = decrypted_blocks.encode()
+        # # convert the string to bytes
+        # image_bytes = decrypted_blocks.encode()
 
-        # create an in-memory file-like object
-        file = io.BytesIO(image_bytes)
+        # # create an in-memory file-like object
+        # file = io.BytesIO(image_bytes)
 
-        # open the image from the file
-        image = Image.open(file)
+        # # open the image from the file
+        # image = Image.open(file)
 
-        # todo send the image and get image from frontend
+        # # todo send the image and get image from frontend
 
-        # return decrypted_blocks
-        return send_file(image, as_attachment=True)
+        # # return decrypted_blocks
+        # return send_file(image, as_attachment=True)
 
 
 '''TO DO!!!'''
