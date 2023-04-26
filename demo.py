@@ -25,6 +25,7 @@ from flask_cors import CORS, cross_origin
 import base64
 import json
 from io import BytesIO
+import builtins
 
 # moving files and folders
 import shutil # used to move files around and clean folders
@@ -215,12 +216,22 @@ def encryptedImageFunc():
         DONOTUSE_file_name, extension = os.path.splitext(file.filename)
         temp_image_name_internal = f"{TEMP_IMAGE_FILENAME}{extension}"
         file.save(temp_image_name_internal)
+        orig_name = file.filename
 
-
+    
         # read the bytes from the file object
-        image_bytes = file.read()
-        # print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
-        # print(f"Image Sent: {image_bytes}")
+        with builtins.open(temp_image_name_internal, 'rb') as file:
+            # Read the content of the image file
+            image_data = file.read()
+
+        # Convert the image data to a NumPy array
+        image_array = np.frombuffer(image_data, dtype=np.uint8)
+
+        # Convert the NumPy array to bytes
+        image_bytes = image_array.tobytes()
+        # image_bytes = file.read()
+        # # print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
+        # # print(f"Image Sent: {image_bytes}")
         
         # Generate key pairs & Display them
         sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
@@ -258,7 +269,7 @@ def encryptedImageFunc():
         # clean_out_directory(path_to_uploads)
 
         print('\n')
-        print(f"Image {file.filename} has been encrypted!")
+        print(f"Image {orig_name} has been encrypted!")
         # print(f"Final result of encryption: {encrypted_blocks}")
         return send_file(image_zip, as_attachment=True)
         # # get mime data for original image
