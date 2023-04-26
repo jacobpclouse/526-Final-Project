@@ -234,7 +234,7 @@ def encryptedImageFunc():
         the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 
 
-        '''
+
         # read the bytes from the file object
         with builtins.open(temp_image_name_internal, 'rb') as file:
             # Read the content of the image file
@@ -246,21 +246,16 @@ def encryptedImageFunc():
 
         # # Convert the PIL Image object to a numpy array
         image_array = np.array(image)
-        write_to_file(image_array,'PIL_before_encryption.txt')'''
+        write_to_file(image_array,'PIL_before_encryption.txt')
         # print(f"Image Shape: {image_array.shape}")
         # # print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
         # # print(f"Image Sent: {image_bytes}")
-
-        # Open the image file as a binary file
-        with open(temp_image_name_internal, "rb") as image_file:
-            # Read the contents of the image file as a sequence of bytes
-            image_bytes = image_file.read()
         
         
         # pass data to encryption function
         # encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck, e_encryption_image_output_name )
         # encrypted_blocks = encrypt(str(image_bytes), the_enck)
-        encrypted_blocks = encrypt(str(image_bytes), the_enck)
+        encrypted_blocks = encrypt(str(image_array), the_enck)
 
         # store enck data and encrypted data into files for zipping
         store_the_enck_bin(the_enck,the_enck_image_name)
@@ -454,12 +449,8 @@ def decryptedImageFunc():
         # print(type(decrypted_blocks[0]))
 
         # print('decrypt')
-        # print(f"Decrypted: {decrypted_blocks}")
+        print(f"Decrypted: {decrypted_blocks}")
         output_name = f"{OUTBOUND_DECRYPTED_IMAGE_FILENAME}.{thisExtension}"
-
-        with open( output_name, "wb") as copy_file:
-            # Write the image bytes to the new file
-            copy_file.write(decrypted_blocks)
         # Create a new PIL Image object from the numpy array
         # output_name = Image.fromarray(decrypted_blocks)
 
