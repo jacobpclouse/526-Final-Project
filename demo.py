@@ -255,7 +255,7 @@ def encryptedImageFunc():
 
 
         # clean out the directory:
-        clean_out_directory(path_to_uploads)
+        # clean_out_directory(path_to_uploads)
 
         print('\n')
         print(f"Image {file.filename} has been encrypted!")
@@ -400,13 +400,19 @@ def decryptedImageFunc():
 
         # print(f"npy filename: {npy_filename} and bin filename: {bin_filename}")
 
-        from_text_encrypted_blocks = np.load()
-        from_text_enck = read_enck_to_variable(os.path.join(path_to_uploads,bin_filename))
+        from_image_encrypted_blocks = np.load(os.path.join(path_to_uploads,npy_filename))
+        from_image_enck = read_enck_to_variable(os.path.join(path_to_uploads,bin_filename))
 
+
+        # make sure that the values are correct
+        print(f"From encrypted blocks: {from_image_encrypted_blocks}")
+        print(f"From enck: {from_image_enck}")
         # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
-        decrypted_blocks = decrypt(from_text_encrypted_blocks, from_text_enck)
+        decrypted_blocks = decrypt(from_image_encrypted_blocks, from_image_enck)
+        # print(type(decrypted_blocks[0]))
 
-        print('decrypt')
+        # print('decrypt')
+        print(f"Decrypted: {decrypted_blocks}")
 
         # # todo check if actually reads bytes https://groups.google.com/g/pocoo-libs/c/Cwr-muUZOts
         # image_bytes = file.stream.read()
