@@ -246,7 +246,7 @@ def encryptedImageFunc():
 
         # # Convert the PIL Image object to a numpy array
         image_array = np.array(image)
-        write_to_file(image_array,'text_out.txt')
+        write_to_file(image_array,'PIL_before_encryption.txt')
         # print(f"Image Shape: {image_array.shape}")
         # # print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
         # # print(f"Image Sent: {image_bytes}")
@@ -443,11 +443,16 @@ def decryptedImageFunc():
         print(f"From enck: {from_image_enck}")
         # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
         decrypted_blocks = decryptImage(from_image_encrypted_blocks, from_image_enck)
+        arr_shape = decrypted_blocks.shape
+        print(f"Array Shape: {arr_shape}")
+
         # print(type(decrypted_blocks[0]))
 
         # print('decrypt')
         print(f"Decrypted: {decrypted_blocks}")
         output_name = f"{OUTBOUND_DECRYPTED_IMAGE_FILENAME}.{thisExtension}"
+        # Create a new PIL Image object from the numpy array
+        output_name = Image.fromarray(decrypted_blocks)
         # decrypted_image = Image.fromarray(np.uint8(decrypted_blocks))
 
         # # Assuming 'output_name' is the name of the file you want to save the image to
