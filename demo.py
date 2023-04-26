@@ -158,6 +158,11 @@ def get_image_mime_data(targetImage,outputFileName):
     with open(outputFileName, 'w') as mime_file:# Save the mime data to a file
         mime_file.write(mime_data)
 
+# --- Function to remove unneeded zip files ---
+def delete_zip_file(extraZip):
+    if os.path.exists(extraZip) and extraZip.endswith('.zip'):
+        os.remove(extraZip)
+        print(f"{extraZip} has been deleted.")
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Routes
@@ -174,8 +179,10 @@ def encryptedImageFunc():
     global image_bytes
     title = "Route to process encrypted image data - Alt N Bit Encryption Demo - Luna and Jacob "
     create_folder(path_to_uploads)
-    # clean out the directory:
+    # clean out the directory and extra zips:
     clean_out_directory(path_to_uploads)
+    delete_zip_file(image_zip)
+    delete_zip_file(text_zip)
 
     # do something with the image bytes here
     if request.method == "GET":
@@ -261,6 +268,8 @@ def encryptedTextFunc():
     create_folder(path_to_uploads)
     # if it exists, clean it out
     clean_out_directory(path_to_uploads)
+    delete_zip_file(image_zip)
+    delete_zip_file(text_zip)
 
     if request.method == "GET":
         # Program Startup -- Logo Print Out shows that it is working
@@ -336,6 +345,8 @@ def decryptedImageFunc():
     create_folder(path_to_uploads)
     # if it exists, clean it out
     clean_out_directory(path_to_uploads)
+    delete_zip_file(image_zip)
+    delete_zip_file(text_zip)
 
     if request.method == "GET":
         # Program Startup -- Logo Print Out shows that it is working
@@ -393,6 +404,8 @@ def decryptedTextFunc():
     create_folder(path_to_uploads)
     # if it exists, clean it out
     clean_out_directory(path_to_uploads)
+    delete_zip_file(image_zip)
+    delete_zip_file(text_zip)
 
     if request.method == "GET":
         # Program Startup -- Logo Print Out shows that it is working
@@ -427,6 +440,8 @@ def decryptedZipFunc():
     create_folder(path_to_uploads)
     # if it exists, clean it out
     clean_out_directory(path_to_uploads)
+    delete_zip_file(image_zip)
+    delete_zip_file(text_zip)
 
     if request.method == "GET":
         # Program Startup -- Logo Print Out shows that it is working
