@@ -32,6 +32,7 @@ import hashlib
 
 from PIL import Image
 import numpy as np
+np.set_printoptions(threshold=np.inf)
 
 from AES import *
 import io
@@ -277,4 +278,5 @@ def decryptImage(blk, enck):
     # print("Hell yeahnumpy rules...")
     # decrypted_np = np.fromstring(blocks.replace('\n','').encode(), dtype=np.uint8)
     write_to_file(output,'numpy_after_decryption.txt')
-    return np.array(output)
+    print(len(output))
+    return ''.join(blocks)

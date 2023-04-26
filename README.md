@@ -52,3 +52,4 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Connect Vue.js with Flask: https://medium.com/featurepreneur/connect-vuejs-with-flask-1316ea0afecf
 - Receive or Return files-Flask API: https://medium.com/analytics-vidhya/receive-or-return-files-flask-api-8389d42b0684
 - Python Script to convert Image into Byte array: https://stackoverflow.com/questions/22351254/python-script-to-convert-image-into-byte-array
+- set threshold for nparrays: https://note.nkmk.me/en/python-numpy-set-printoptions-threshold/

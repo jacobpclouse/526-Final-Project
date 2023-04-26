@@ -46,6 +46,7 @@ from sss.sss_question2 import read_grayscale_pixels
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Variables
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+np.set_printoptions(threshold=np.inf)
 demo = Flask(__name__)
 # without cors, app will refuse the requests from the frontend
 Cors = CORS(demo)
@@ -57,8 +58,8 @@ test_list_name_encryption = 'test_encryption_numpy_array.npy'
 the_enck_value = 'the_enck_val.bin'
 
 # Text file names
-e_encryption_text_output_name = 'e_val_from_text_encryption.txt'
-e_decryption_text_output_name = 'e_val_from_text_decryption.txt'
+# e_encryption_text_output_name = 'e_val_from_text_encryption.txt'
+# e_decryption_text_output_name = 'e_val_from_text_decryption.txt'
 numpy_encryption_text_name = 'numpy_encryption_text_data.npy'
 the_enck_text_name = 'the_enck_text_data.bin'
 text_zip = 'text_zip.zip'
@@ -68,7 +69,9 @@ text_zip = 'text_zip.zip'
 
 mime_data_encryption_image= 'mime_data_encryption_image_data.txt'
 numpy_encryption_image_name = 'numpy_encryption_image_data.npy'
+CIPHER_encryption_image_name = 'cipher_encryption_image_data.cipher'
 the_enck_image_name = 'the_enck_image_data.bin'
+shape_of_numpy_encryption = 'shape_numpy_encryption_image_data.shape'
 image_zip = 'image_zip.zip'
 TEMP_IMAGE_FILENAME = 'uploaded_unencrypted_image'
 OUTBOUND_DECRYPTED_IMAGE_FILENAME = 'decrypted_image'
@@ -233,50 +236,60 @@ def encryptedImageFunc():
         # Grabbing the ENCK - This needs to be given to the user as a key in order to retrieve their data
         the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
 
-
-        '''
-        # read the bytes from the file object
-        with builtins.open(temp_image_name_internal, 'rb') as file:
-            # Read the content of the image file
-            image_data = file.read()
-
-        # Create a PIL Image object from the bytes
-        image = Image.open(io.BytesIO(image_data))
-
-
-        # # Convert the PIL Image object to a numpy array
-        image_array = np.array(image)
-        write_to_file(image_array,'PIL_before_encryption.txt')'''
-        # print(f"Image Shape: {image_array.shape}")
+        
         # # print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
-        # # print(f"Image Sent: {image_bytes}")
+
 
         # Open the image file as a binary file
         with open(temp_image_name_internal, "rb") as image_file:
             # Read the contents of the image file as a sequence of bytes
             image_bytes = image_file.read()
         
+        # Create a PIL Image object from the bytes
+        image = Image.open(io.BytesIO(image_bytes))
+        # Convert the PIL Image object to a numpy array
+        image_array = np.array(image)
+        # image_array = np.clip(np.array(image), -np.inf, np.inf)
+        # flattened_arr = image_array.flatten()
+
+        # # Save the shape of the array to a file
+        # with open(shape_of_numpy_encryption, 'w') as f:
+        #     f.write(','.join(map(str, image_array.shape)))
+        #     image_array.tofile(f, sep=',', format='%d')
+        with open(shape_of_numpy_encryption, 'w') as f:
+            f.write(str(image_array.shape))
+
+
         
         # pass data to encryption function
         # encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck, e_encryption_image_output_name )
-        # encrypted_blocks = encrypt(str(image_bytes), the_enck)
-        encrypted_blocks = encrypt(str(image_bytes), the_enck)
+        encrypted_blocks = encrypt(str(image_array), the_enck)
+        # encrypted_blocks = encrypt(str(flattened_arr), the_enck)
 
         # store enck data and encrypted data into files for zipping
         store_the_enck_bin(the_enck,the_enck_image_name)
         np.save(numpy_encryption_image_name, encrypted_blocks)
+        print(f"Image Shape: {image_array.shape}")
         # get_image_mime_data(temp_image_name_internal,mime_data_encryption_image)
         write_to_file(extension,mime_data_encryption_image) # just store extension into a file
+        print(type(encrypted_blocks))
+        print(type(encrypted_blocks[0]))
+        big_byte = ''.join(encrypted_blocks)
+        # print(big_byte)
+        with open(CIPHER_encryption_image_name, 'wb') as bytes_file_output:
+            bytes_file_output.write(big_byte.encode())
 
         
         # zip and return the file to the users
-        zip_files(image_zip,[the_enck_image_name,numpy_encryption_image_name,mime_data_encryption_image])
+        # zip_files(image_zip,[the_enck_image_name,numpy_encryption_image_name,mime_data_encryption_image])
+        zip_files(image_zip,[the_enck_image_name,CIPHER_encryption_image_name,mime_data_encryption_image,numpy_encryption_image_name,shape_of_numpy_encryption])
 
         # move data to uploads for removal
         shutil.move(the_enck_image_name, path_to_uploads)
         shutil.move(numpy_encryption_image_name, path_to_uploads)
         shutil.move(mime_data_encryption_image, path_to_uploads)
         shutil.move(temp_image_name_internal, path_to_uploads)
+        shutil.move(CIPHER_encryption_image_name, path_to_uploads)
 
         # this goes after move with shutil to uploads
         # # files_to_zip = [the_enck_image_name,numpy_encryption_image_name,mime_data_encryption_image]
@@ -423,6 +436,9 @@ def decryptedImageFunc():
         npy_file = glob.glob(os.path.join(path_to_uploads, "*.npy"))[0]
         npy_filename = os.path.basename(npy_file)
 
+        cipher_file = glob.glob(os.path.join(path_to_uploads, "*.cipher"))[0]
+        cipher_filename = os.path.basename(cipher_file)
+
         # use glob to get the first .bin file in the directory
         bin_file = glob.glob(os.path.join(path_to_uploads, "*.bin"))[0]
         bin_filename = os.path.basename(bin_file)
@@ -432,34 +448,60 @@ def decryptedImageFunc():
         txt_filename = os.path.basename(txt_file)
         with open(os.path.join(path_to_uploads,txt_filename), 'r') as file:
             thisExtension = file.read()
-        # print(f"npy filename: {npy_filename}, bin filename: {bin_filename}, ext is: {thisExtension}")
+
+
+        # use glob to get the first .shape file in the directory
+        shape_file = glob.glob(os.path.join(path_to_uploads, "*.shape"))[0]
+        print(shape_file)
+        shape_filename = os.path.basename(shape_file)
+        print(shape_filename)
+        with open(shape_file, 'r') as f:
+            file_contents = f.read()
+            my_image_shape = eval(file_contents)
+        # print(my_image_shape)
+
+        print(f"npy filename: {npy_filename}, bin filename: {bin_filename}, ext is: {thisExtension}, shape is: {my_image_shape}")
 
         from_image_enck = read_enck_to_variable(os.path.join(path_to_uploads,bin_filename))
         from_image_encrypted_blocks = np.load(os.path.join(path_to_uploads,npy_filename))
-        # path_to_encrypted = os.path.join(path_to_uploads, npy_filename)
-        # encrypted_blocks = np.load(path_to_encrypted)
-        # encrypted_blocks = np.load(path_to_encrypted)
-        # from_image_encrypted_blocks = Image.fromarray(np.uint8(encrypted_blocks))
+        # with open(os.path.join(path_to_uploads,cipher_filename), 'rb') as bytes_file_output:
+        #     from_image_encrypted_blocks = bytes_file_output.read()
         
 
 
         # make sure that the values are correct
-        print(f"From encrypted blocks: {from_image_encrypted_blocks}")
-        print(f"From enck: {from_image_enck}")
+        # print(f"From encrypted blocks: {from_image_encrypted_blocks}")
+        # print(f"From enck: {from_image_enck}")
         # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
         decrypted_blocks = decryptImage(from_image_encrypted_blocks, from_image_enck)
-        arr_shape = decrypted_blocks.shape
-        print(f"Array Shape: {arr_shape}")
+        print(decrypted_blocks)
+        
+        print("Made it past decryption")
 
-        # print(type(decrypted_blocks[0]))
-
-        # print('decrypt')
-        # print(f"Decrypted: {decrypted_blocks}")
         output_name = f"{OUTBOUND_DECRYPTED_IMAGE_FILENAME}.{thisExtension}"
+        encoded_blocks = decrypted_blocks.encode()
+        # Convert the bytes to a numpy array
+        image_nparray = np.frombuffer(encoded_blocks, dtype=np.uint8)
 
-        with open( output_name, "wb") as copy_file:
-            # Write the image bytes to the new file
-            copy_file.write(decrypted_blocks)
+        # Convert the numpy array to an Image object
+        image = Image.fromarray(image_nparray)
+
+        # Save the image to a file -- this isn't working for some reason
+        image.save(output_name)
+
+        # # Create a new PIL Image object from the numpy array
+        # new_image = Image.fromarray(encoded_blocks)
+        # # Save the image to a file
+        # new_image.save('new_image.jpg')
+
+        # Unflatten the array
+        # arr = image_nparray.reshape(my_image_shape)
+        # Assume that you have some bytes data in a BytesIO object
+
+
+        # with open(output_name, "wb") as copy_file:
+        #     # Write the image bytes to the new file
+        #     copy_file.write(decrypted_blocks)
         # Create a new PIL Image object from the numpy array
         # output_name = Image.fromarray(decrypted_blocks)
 
