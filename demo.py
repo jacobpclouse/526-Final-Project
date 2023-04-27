@@ -510,7 +510,7 @@ def decryptedImageFunc():
         img_file = open(output_name, 'rb')
 
         # Return the image file using send_file
-        return send_file(img_file, mimetype='image/jpeg')
+        return send_file(img_file, mimetype='image/png')
 
 
 '''TO DO!!!'''
