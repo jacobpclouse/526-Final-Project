@@ -15,11 +15,13 @@ from PIL import Image
 
 # encryption imports
 from AES import AES
-from Alt_N_Bit import generate_key_pair, encrypt, decrypt, split_blocks, create_image_from_bytes, read_image_bytes, write_to_file
+from Alt_N_Bit import generate_key_pair, encrypt, decrypt, split_blocks, create_image_from_bytes, read_image_bytes, \
+    write_to_file
 from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
 
 # Backend imports 
-from flask import Flask, flash, request, redirect, url_for, render_template, send_from_directory, send_file, make_response,Response,\
+from flask import Flask, flash, request, redirect, url_for, render_template, send_from_directory, send_file, \
+    make_response, Response, \
     jsonify  # for web back end
 from flask_cors import CORS, cross_origin
 import base64
@@ -27,14 +29,13 @@ import json
 from io import BytesIO
 
 # moving files and folders
-import shutil # used to move files around and clean folders
+import shutil  # used to move files around and clean folders
 import os
-import numpy as np # used to store actual encrypted data in a file and retrieve it
-import zipfile # used in zipping images
-import glob 
-import uuid # get extensions for images
-import magic # used to get mime data for the image
-
+import numpy as np  # used to store actual encrypted data in a file and retrieve it
+import zipfile  # used in zipping images
+import glob
+import uuid  # get extensions for images
+import magic  # used to get mime data for the image
 
 # shamir Secret Sharing stuff
 from sss import sss_question2
@@ -47,8 +48,9 @@ from sss.sss_question2 import read_grayscale_pixels
 demo = Flask(__name__)
 # without cors, app will refuse the requests from the frontend
 Cors = CORS(demo)
-CORS(demo, resources={r'/*': {'origins': '*'}}, CORS_SUPPORTS_CREDENTIALS=True)
+CORS(demo, resources={r'/*': {'origins': '*'}})
 demo.config['CORS_HEADERS'] = 'Content-Type'
+
 
 # array and data names:
 test_list_name_encryption = 'test_encryption_numpy_array.npy'
@@ -61,16 +63,14 @@ numpy_encryption_text_name = 'numpy_encryption_text_data.npy'
 the_enck_text_name = 'the_enck_text_data.bin'
 text_zip = 'text_zip.zip'
 
-
 # Image File names
 
-mime_data_encryption_image= 'mime_data_encryption_image_data.txt'
+mime_data_encryption_image = 'mime_data_encryption_image_data.txt'
 numpy_encryption_image_name = 'numpy_encryption_image_data.npy'
 the_enck_image_name = 'the_enck_image_data.bin'
 image_zip = 'image_zip.zip'
 TEMP_IMAGE_FILENAME = 'uploaded_unencrypted_image'
 OUTBOUND_DECRYPTED_IMAGE_FILENAME = 'decrypted_image'
-
 
 # File Paths
 path_to_uploads = 'UPLOADS'
@@ -102,7 +102,7 @@ def defang_datetime():
 
 
 # --- Function to store data into a bin file for later retrival ---
-def store_the_enck_bin(value,filename):
+def store_the_enck_bin(value, filename):
     with open(filename, 'wb') as file:
         file.write(value)
     file.close()
@@ -154,16 +154,18 @@ def unzip_files(zip_name):
 
 
 # --- Function to get the mimedata of an uploaded image for encryption ---
-def get_image_mime_data(targetImage,outputFileName):
-    mime_data = magic.from_file(targetImage, mime=True) # grab mime data
-    with open(outputFileName, 'w') as mime_file:# Save the mime data to a file
+def get_image_mime_data(targetImage, outputFileName):
+    mime_data = magic.from_file(targetImage, mime=True)  # grab mime data
+    with open(outputFileName, 'w') as mime_file:  # Save the mime data to a file
         mime_file.write(mime_data)
+
 
 # --- Function to remove unneeded zip files ---
 def delete_zip_file(extraZip):
     if os.path.exists(extraZip) and extraZip.endswith('.zip'):
         os.remove(extraZip)
         print(f"{extraZip} has been deleted.")
+
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Routes
@@ -173,6 +175,8 @@ def delete_zip_file(extraZip):
 
 # todo test & review header not intact
 '''TO DO!!!'''
+
+
 # Route to process encrypted image data ** NEED TO STORE AS BLOB IN UPLOADS
 @demo.route('/encrypt-image', methods=['GET', 'POST'])
 def encryptedImageFunc():
@@ -200,8 +204,7 @@ def encryptedImageFunc():
         # read in number of blocks -- un needed
         # number_Blocks = request.json.get('numBlocks')
         # enck = request.json.get('enck')
-        number_Blocks = 32 # TEMP - getting this from the user causes a 400 bad request error
-
+        number_Blocks = 32  # TEMP - getting this from the user causes a 400 bad request error
 
         # check if the post request has the file part
         if 'image' not in request.files:
@@ -216,29 +219,28 @@ def encryptedImageFunc():
         temp_image_name_internal = f"{TEMP_IMAGE_FILENAME}{extension}"
         file.save(temp_image_name_internal)
 
-
         # read the bytes from the file object
         image_bytes = file.read()
         # print(f"Image Sent: {image_bytes} \n Number Of Blocks: {number_Blocks}")
         # print(f"Image Sent: {image_bytes}")
-        
+
         # Generate key pairs & Display them
         sender_private_key, sender_public_key, receiver_private_key, receiver_public_key = generate_key_pair()
 
         # Grabbing the ENCK - This needs to be given to the user as a key in order to retrieve their data
         the_enck = sender_private_key.exchange(ec.ECDH(), receiver_public_key)
-        
+
         # pass data to encryption function
         # encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck, e_encryption_image_output_name )
         encrypted_blocks = encrypt(str(image_bytes), the_enck)
 
         # store enck data and encrypted data into files for zipping
-        store_the_enck_bin(the_enck,the_enck_image_name)
+        store_the_enck_bin(the_enck, the_enck_image_name)
         np.save(numpy_encryption_image_name, encrypted_blocks)
-        get_image_mime_data(temp_image_name_internal,mime_data_encryption_image)
-        
+        get_image_mime_data(temp_image_name_internal, mime_data_encryption_image)
+
         # zip and return the file to the users
-        zip_files(image_zip,[the_enck_image_name,numpy_encryption_image_name,mime_data_encryption_image])
+        zip_files(image_zip, [the_enck_image_name, numpy_encryption_image_name, mime_data_encryption_image])
 
         # move data to uploads for removal
         shutil.move(the_enck_image_name, path_to_uploads)
@@ -251,8 +253,6 @@ def encryptedImageFunc():
         # old_name_zip = shutil.make_archive(image_zip, "zip", root_dir=path_to_uploads)
         # # rename the original zip file
         # os.rename(old_name_zip, image_zip)
-
-
 
         # clean out the directory:
         # clean_out_directory(path_to_uploads)
@@ -311,18 +311,17 @@ def encryptedTextFunc():
 
         # store enck, store encrypted block data, and move files to the uploads folder for zipping
         # first enck, second encrypted blocks array
-        store_the_enck_bin(the_enck,the_enck_text_name)
+        store_the_enck_bin(the_enck, the_enck_text_name)
         np.save(numpy_encryption_text_name, encrypted_blocks)
         # zip and return the file to the users
-        zip_files(text_zip,[the_enck_text_name,numpy_encryption_text_name])
+        zip_files(text_zip, [the_enck_text_name, numpy_encryption_text_name])
 
         # then move them to the uploads
         shutil.move(the_enck_text_name, path_to_uploads)
         shutil.move(numpy_encryption_text_name, path_to_uploads)
         # shutil.move(text_zip, path_to_uploads) # return this to user before moving it
 
-
-        # ## testing download 
+        # ## testing download
         # attached_zip_file = send_file(text_zip, as_attachment=True)
 
         # # replace text with the string of text you want to send
@@ -337,16 +336,16 @@ def encryptedTextFunc():
 
         # # return the JSON object
         # return json.dumps(response)
-           # replace filename with the name of your zip file
+        # replace filename with the name of your zip file
         # replace filename with the name of your zip file
         return send_file(text_zip, as_attachment=True)
-    
-
 
 
 ''' DECRYPTION '''
 
 '''TO DO!!!'''
+
+
 # todo test & review
 # Route to decrypt image data ** NEED TO STORE AS BLOB IN UPLOADS
 @demo.route('/decrypt-image', methods=['GET', 'POST'])
@@ -377,7 +376,7 @@ def decryptedImageFunc():
         file = request.files['file']
         # number_Blocks = request.json.get('numBlocks')
         # enck = request.json.get('enck')
-        number_Blocks = 32 # TEMP - getting this from the user causes a 400 bad request error
+        number_Blocks = 32  # TEMP - getting this from the user causes a 400 bad request error
 
         if file.filename.endswith('.zip'):
             # Save the zip file
@@ -400,9 +399,8 @@ def decryptedImageFunc():
 
         # print(f"npy filename: {npy_filename} and bin filename: {bin_filename}")
 
-        from_image_encrypted_blocks = np.load(os.path.join(path_to_uploads,npy_filename))
-        from_image_enck = read_enck_to_variable(os.path.join(path_to_uploads,bin_filename))
-
+        from_image_encrypted_blocks = np.load(os.path.join(path_to_uploads, npy_filename))
+        from_image_enck = read_enck_to_variable(os.path.join(path_to_uploads, bin_filename))
 
         # make sure that the values are correct
         print(f"From encrypted blocks: {from_image_encrypted_blocks}")
@@ -420,11 +418,9 @@ def decryptedImageFunc():
         # image_bytes = file.read()
         # # you need to get the original enck value from the user to decrypt the whole thing
 
-
         # # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
         # decrypted_blocks = decrypt(image_bytes, number_Blocks)
 
-        
         return jsonify(success=True)
 
         # # convert the string to bytes
@@ -443,6 +439,8 @@ def decryptedImageFunc():
 
 
 '''TO DO!!!'''
+
+
 # Route to decrypt text data
 @demo.route('/decrypt-text', methods=['GET', 'POST'])
 def decryptedTextFunc():
@@ -468,15 +466,11 @@ def decryptedTextFunc():
         sent_text = request.json.get('text')
         print(f"Text Sent: {sent_text} \n Number Of Blocks: {number_Blocks}")
         # you need to get the original enck value from the user to decrypt the whole thing
-        
 
         # decrypted_blocks = decrypt(str(sent_text), number_Blocks)
         decrypted_blocks = decrypt(sent_text, number_Blocks)
 
-        
-
         return decrypted_blocks
-
 
 
 # Route to decrypt zip data -- TEXT!!!!
@@ -508,7 +502,7 @@ def decryptedZipFunc():
         file = request.files['file']
         # number_Blocks = request.json.get('numBlocks')
         # enck = request.json.get('enck')
-        
+
         if file.filename.endswith('.zip'):
             # Save the zip file
             file.save(file.filename)
@@ -530,8 +524,8 @@ def decryptedZipFunc():
 
         # print(f"npy filename: {npy_filename} and bin filename: {bin_filename}")
 
-        from_text_encrypted_blocks = np.load(os.path.join(path_to_uploads,npy_filename))
-        from_text_enck = read_enck_to_variable(os.path.join(path_to_uploads,bin_filename))
+        from_text_encrypted_blocks = np.load(os.path.join(path_to_uploads, npy_filename))
+        from_text_enck = read_enck_to_variable(os.path.join(path_to_uploads, bin_filename))
 
         # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
         decrypted_blocks = decrypt(from_text_encrypted_blocks, from_text_enck)
@@ -545,6 +539,8 @@ def decryptedZipFunc():
 """
 Shamir's secret sharing w/ homomorphism methods
 """
+
+
 # todo test & review
 @demo.route('/generate-shares', methods=['GET', 'POST'])
 def encrypt_sss():
@@ -598,7 +594,6 @@ def encrypt_sss():
         print('\n')
         print(f"Image {file.filename} has been encrypted with SSS!")
 
-
         # send shares to the client
         return send_file(zip_name, as_attachment=True)
 
@@ -606,26 +601,61 @@ def encrypt_sss():
 @demo.route('/reconstruct-image', methods=['GET', 'POST'])
 # todo test & review
 def decrypt_sss():
-    # save all downscaled share images uploaded from the client
-    global shape
-    files = request.files.getlist('file')
-    filenames = []
-    for file in files:
-        filename = file.filename
-        filenames.append(filename)
-        file.save(filename)
+    global shares, img_shape
+    create_folder(path_to_uploads)
+    clean_out_directory(path_to_uploads)
 
-    n = request.json.get('numShares')
-    k = request.json.get('numThreshold')
+    if request.method == "GET":
+        # Program Startup -- Logo Print Out shows that it is working
+        our_Logo()
 
-    downscaled_shares = np.array([])
-    for filename in filenames:
-        downscaled_share, shape = list(read_grayscale_pixels(filename)[0]), read_grayscale_pixels(filename)[1]
-        downscaled_shares = np.append(list(read_grayscale_pixels(filename)[0]))
+        response_object = {'status': 'success'}
+        response_object['message'] = 'Data added!'
+        return jsonify(response_object)
 
-    # reconstruct imgs with their paths with a fake method
-    reconstructed_image = reconstruct_downscaled(downscaled_shares[0:k, :], (shape[0] * 2, shape[1] *2))[2]
-    send_file(reconstructed_image, as_attachment=True)
+    if request.method == "POST":
+        print("decryptedImageFunc - Post Request Recieved!")
+
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            return 'No Zip uploaded', 400
+
+        # get the file object from the request
+        file = request.files['file']
+        n = int(request.form['numShares'])
+        k = int(request.form['numThreshold'])
+
+        if file.filename.endswith('.zip'):
+            # Save the zip file
+            file.save(file.filename)
+            # Extract the zip file
+            with zipfile.ZipFile(file.filename, 'r') as zip_ref:
+                zip_ref.extractall(path_to_uploads)
+
+        # use glob to get the first .npy file in the directory
+        npy_files = glob.glob(os.path.join(path_to_uploads, "*.npy"))
+        npy_filename_1 = os.path.basename(npy_files[0])
+        npy_filename_2 = os.path.basename(npy_files[1])
+
+        npy_filenames = [npy_filename_1, npy_filename_2]
+
+        for npy_filename in npy_filenames:
+            if npy_filename == "shape_original.npy":
+                img_shape = np.load(os.path.join(path_to_uploads, npy_filename))
+                print(f"img shape: {img_shape}")
+            else:
+                shares = np.load(os.path.join(path_to_uploads, npy_filename))
+                print(f"shares: {shares}")
+
+        # reconstruct img
+        reconstructed_image = reconstruct_downscaled(shares, (img_shape[0], img_shape[1]), k)[1]
+
+        # Open the image file
+        img_file = open(reconstructed_image, 'rb')
+
+        # Return the image file using send_file
+        return send_file(img_file, mimetype='image/bmp')
+
 
 # -------------------------------------
 # main statement - used to set dev mode and do auto reloading - remove this before going to production

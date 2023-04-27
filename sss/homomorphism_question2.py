@@ -69,10 +69,13 @@ def downscale_shares(share_paths):
 
 # Step 4: Pick any 2 downscaled shares, i.e., from Is1, Is2, Is3, and reconstruct the downscaled plaintext
 # image (denoted by Is).
-def reconstruct_downscaled(shares, shape):
+def reconstruct_downscaled(shares, shape, k):
+    print("reconstructing...")
     # shares = np.array([(1, s1), (2, s2)])
-    data = sss_question2.reconstruct(shares, shape, k=k, name="reconstructed_downscaled.bmp")[1]
-    return data
+    result = sss_question2.reconstruct(shares, shape, k=k, name="reconstructed_img.bmp")
+    reconstructed_image = result[0]
+    data = result[1]
+    return data, reconstructed_image
 
 
 # Step 5: Compute the mean average error between the two images, Io and Is, using the following
@@ -91,14 +94,14 @@ if __name__ == '__main__':
     i_0, downscaled_img, i_0_shape, i_0_w, i_0_h = downscale()
 
     # step 2
-    shares, share_paths = generate_shares(i)
+    shares, share_paths = generate_shares(i, i_0_shape)
 
     # step 3
     # share_paths = ["share_grayscale_1.bmp", "share_grayscale_2.bmp", "share_grayscale_3.bmp"]
     downscaled_shares = downscale_shares(share_paths)[0]
 
     # step 4
-    reconstructed_image = reconstruct_downscaled(downscaled_shares[0:k, :], i_shape)
+    reconstructed_image = reconstruct_downscaled(downscaled_shares[0:k, :], i_shape, k)[0]
 
     # step 5
     mae = compute_mae(i_0, reconstructed_image.flatten(), i_0_w, i_0_h)

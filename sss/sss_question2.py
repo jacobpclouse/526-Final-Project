@@ -98,6 +98,7 @@ def generate_shares(image, mode, shape, n=n):
 
 
 def reconstruct(shares, shape, k=k, name='reconstructed_grayscale_image.bmp'):
+    print("hi")
     """
     :param shares: the share pixels
     :param shape: shape of our image and num channels (3 bc it is an RGB with three color channels)
@@ -106,28 +107,65 @@ def reconstruct(shares, shape, k=k, name='reconstructed_grayscale_image.bmp'):
     # Create a new array to hold the reconstructed pixel values
     reconstructed_pixels = []
 
+    print("hi")
+
     # the share numbers for the two shares we want to use, which is [1, 2].
     x = np.array([1, k])
     dim = shares.shape[1]
 
-    for i in range(dim):
-        # Use Lagrange interpolation to interpolate the polynomial that passes through the two points
-        y = shares[:, i]
-        poly = lag(x, y)
-        # evaluate the interpolated polynomials at x=0 which is the secret
-        pixel = poly(0) % FIELD_SIZE
-        # Add the reconstructed pixel value to the new array
-        reconstructed_pixels.append(pixel)
+    print("hi")
+
+    print(shape)
+
+    try:
+        for i in range(dim):
+            print(i)
+            # Use Lagrange interpolation to interpolate the polynomial that passes through the two points
+            y = shares[:, i]
+            poly = lag(x, y)
+            # evaluate the interpolated polynomials at x=0 which is the secret
+            pixel = poly(0) % FIELD_SIZE
+            # Add the reconstructed pixel value to the new array
+            reconstructed_pixels.append(pixel)
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
     reconstructed_pixels = np.array(reconstructed_pixels)
     reconstructed_pixels = reconstructed_pixels.reshape(*shape)
     reconstructed_img = Image.fromarray(reconstructed_pixels.astype(np.uint8))
     reconstructed_img.save(name)
 
-    return name, np.array(reconstructed_pixels), reconstructed_img
+    print("Saved reconstructed image!")
+
+    return name, np.array(reconstructed_pixels)
 
 
 def recolor(path, rgb_pixels, width, height, header):
+    # load the grayscale image
+    gray_renconstructed_img = Image.open(path)
+
+    # convert the image to RGB
+    rgb_renconstructed_img = gray_renconstructed_img.convert("RGB")
+
+    # replace the gray pixels with a color of your choice
+    for y in range(height):
+        for x in range(width):
+            r, g, b = rgb_renconstructed_img.getpixel((y, x))
+            if r == g == b:
+                rgb_renconstructed_img.putpixel((y, x), rgb_pixels[y][x])
+
+    # save the recolored image
+    out = "reconstructed_rgb_image.bmp"
+    rgb_renconstructed_img.save(out)
+
+    # append the header to keep header intact
+    with open(out, "r+b") as f:
+        # Append the header to the new image bytes
+        f.seek(0)
+        f.write(header)
+
+
+def recolor_noheader(path, rgb_pixels, width, height):
     # load the grayscale image
     gray_renconstructed_img = Image.open(path)
 
