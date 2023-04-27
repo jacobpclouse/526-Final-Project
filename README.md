@@ -1,7 +1,8 @@
 # 526-Final-Project
-ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
-<a href="https://github.com/jacobpclouse/526-Final-Project/graphs/contributors" alt="Contributors">
-        <img src="https://img.shields.io/github/contributors/jacobpclouse/526-Final-Project" /></a>
+ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023 [![GitHub contributors](https://img.shields.io/github/contributors/jacobpclouse/526-Final-Project.svg)]("https://github.com/jacobpclouse/526-Final-Project/graphs/contributors")
+<!-- <a href="https://github.com/jacobpclouse/526-Final-Project/graphs/contributors" alt="Contributors">
+        <img src="https://img.shields.io/github/contributors/jacobpclouse/526-Final-Project" /></a> -->
+        
 > This is the backend, the frontend is stored at: https://github.com/dolnuea/frontend-alt-n-bit
 
 ## Paper: Alternative N-bit Key Data Encryption for Block Ciphers
@@ -69,3 +70,4 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023
 - Image download mime type validation python requests: https://stackoverflow.com/questions/43048099/image-download-mime-type-validation-python-requests
 - **Convert PIL or OpenCV Image to Bytes without Saving to Disk: https://jdhao.github.io/2019/07/06/python_opencv_pil_image_to_bytes/
 - Display and save Numpy array as Image: https://iq.opengenus.org/display-numpy-array-as-image/#:~:text=To%20save%20the%20Numpy%20array,directory%20where%20to%20save%20it.&text=This%20will%20save%20the%20Numpy%20array%20as%20a%20jpeg%20image.
+- How to open and view a numpy array in Python (numpy.ndarray.view()): https://www.geeksforgeeks.org/numpy-ndarray-view-in-python/#
