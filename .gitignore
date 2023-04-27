@@ -33,5 +33,13 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-# Zip files:
+# Temp files:
 *.zip
+*.png
+*.jpeg
+*.jpg
+*.bmp
+*.npy
+*.bin
+*.pyc
+*.txt
