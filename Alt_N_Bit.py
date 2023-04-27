@@ -246,7 +246,7 @@ def decrypt(blk, enck):
 
 
 # def decrypt(blk, n, enck, name_e_File_decrypted):
-def decryptImage(blk, enck):
+def decryptImage(blk, enck, width, height):
     """
     blk: encrypted blocks of size n
     n: blocks size
@@ -286,5 +286,5 @@ def decryptImage(blk, enck):
     # Convert the list of numbers to a NumPy array
     arr = np.array(numbers, dtype=int)
     # Reshape the array to the original shape
-    arr = arr.reshape((10, 10))
+    arr = arr.reshape((width, height))
     return arr

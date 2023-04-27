@@ -471,7 +471,7 @@ def decryptedImageFunc():
         # print(f"From encrypted blocks: {from_image_encrypted_blocks}")
         # print(f"From enck: {from_image_enck}")
         # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
-        decrypted_blocks = decryptImage(from_image_encrypted_blocks, from_image_enck)
+        decrypted_blocks = decryptImage(from_image_encrypted_blocks, from_image_enck, my_image_shape[0], my_image_shape[1])
         
         print(f"Made it past decryption, type: {type(decrypted_blocks)}")
 
@@ -479,7 +479,7 @@ def decryptedImageFunc():
 
         arr = np.array(decrypted_blocks)
 
-        # print(arr)
+        print(arr)
         # create a PIL image from the array
         # img = Image.fromarray(arr)
         print("shape")
