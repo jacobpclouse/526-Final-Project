@@ -248,6 +248,7 @@ def encryptedImageFunc():
         
         # Create a PIL Image object from the bytes
         image = Image.open(io.BytesIO(image_bytes))
+
         # Convert the PIL Image object to a numpy array
         image_array = np.array(image)
         # image_array = np.clip(np.array(image), -np.inf, np.inf)
@@ -266,6 +267,16 @@ def encryptedImageFunc():
         # encrypted_blocks = encrypt(str(image_bytes), number_Blocks, the_enck, e_encryption_image_output_name )
         encrypted_blocks = encrypt(str(image_array), the_enck)
         # encrypted_blocks = encrypt(str(flattened_arr), the_enck)
+
+        # todo save encrypted img too
+        print(encrypted_blocks)
+        numbers_list = []
+        for s in encrypted_blocks:
+            b = s.encode('utf-8')  # convert to byte string
+            numbers = bytearray(b)  # convert to bytearray of integers
+            numbers_list.append(numbers)
+
+        print(numbers_list)
 
         # store enck data and encrypted data into files for zipping
         store_the_enck_bin(the_enck, the_enck_image_name)
