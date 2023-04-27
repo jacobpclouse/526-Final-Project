@@ -29,6 +29,7 @@ We are using AES block cipher (OFB operation) to integrate the innovative approa
 
 """
 import hashlib
+import re
 
 from PIL import Image
 import numpy as np
@@ -278,6 +279,12 @@ def decryptImage(blk, enck):
     # print("Hell yeahnumpy rules...")
     # decrypted_np = np.fromstring(blocks.replace('\n','').encode(), dtype=np.uint8)
     write_to_file(output,'numpy_after_decryption.txt')
-    print(len(output))
-    return ''.join(blocks)
-    # return blocks
+    # Extract digits from the string and convert to numpy array
+    # Use regular expressions to extract the numbers
+    numbers = re.findall('\d+', output)
+
+    # Convert the list of numbers to a NumPy array
+    arr = np.array(numbers, dtype=int)
+    # Reshape the array to the original shape
+    arr = arr.reshape((10, 10))
+    return arr

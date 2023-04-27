@@ -472,20 +472,41 @@ def decryptedImageFunc():
         # print(f"From enck: {from_image_enck}")
         # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
         decrypted_blocks = decryptImage(from_image_encrypted_blocks, from_image_enck)
-        # print(decrypted_blocks)
         
         print(f"Made it past decryption, type: {type(decrypted_blocks)}")
 
         output_name = f"{OUTBOUND_DECRYPTED_IMAGE_FILENAME}.{thisExtension}"
 
         arr = np.array(decrypted_blocks)
+
         # print(arr)
         # create a PIL image from the array
         # img = Image.fromarray(arr)
-        img = Image.fromarray(arr, mode='RGB')
+        print("shape")
+        print(my_image_shape)
+
+        print("arr")
+        print(arr)
+        print(arr.shape)
+
+        # img = Image.fromarray(arr, mode='RGB')
+        # # save the image to a file
+        # img.save(output_name)
+
+        arr.flatten()
+        # assume you have a flattened pixels array called "pixels"
+        # with shape (width * height * 3,)
+        width = my_image_shape[0]
+        height = my_image_shape[1]
+
+        # reshape the pixels array into a 3D array with shape (height, width, 3)
+        pixels_3d = np.reshape(arr, (height, width, 3))
+
+        # create a PIL image from the 3D array
+        img = Image.fromarray(pixels_3d.astype('uint8'), 'RGB')
+
         # save the image to a file
         img.save(output_name)
-
 
         #         # # Create a new PIL Image object from the numpy array
         # new_image = Image.fromarray(encoded_blocks)
@@ -540,8 +561,13 @@ def decryptedImageFunc():
 
         # # todo send the image and get image from frontend
 
+        img_file = open(output_name, 'rb')
+
+        # Return the image file using send_file
+        return send_file(img_file, mimetype='image/jpeg')
+
         # # return decrypted_blocks
-        return send_file(new_image, as_attachment=True)
+        # return send_file(new_image, as_attachment=True)
         # return jsonify(success=True)
 
 
