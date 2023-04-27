@@ -493,82 +493,24 @@ def decryptedImageFunc():
         # # save the image to a file
         # img.save(output_name)
 
-        arr.flatten()
-        # assume you have a flattened pixels array called "pixels"
-        # with shape (width * height * 3,)
-        width = my_image_shape[0]
-        height = my_image_shape[1]
+        # Create an empty array of shape (10, 10, 3) for the RGB values
+        rgb_pixels = np.zeros((10, 10, 3), dtype=np.uint8)
 
-        # reshape the pixels array into a 3D array with shape (height, width, 3)
-        pixels_3d = np.reshape(arr, (height, width, 3))
+        # Set the red, green, and blue values based on the original pixel values
+        rgb_pixels[..., 0] = arr * 10  # Red
+        rgb_pixels[..., 1] = arr * 5  # Green
+        rgb_pixels[..., 2] = arr * 2  # Blue
 
-        # create a PIL image from the 3D array
-        img = Image.fromarray(pixels_3d.astype('uint8'), 'RGB')
+        # Create a PIL Image object from the RGB array and show it
+        img = Image.fromarray(rgb_pixels)
 
-        # save the image to a file
+        # Save the image to a file
         img.save(output_name)
-
-        #         # # Create a new PIL Image object from the numpy array
-        # new_image = Image.fromarray(encoded_blocks)
-        # # Save the image to a file
-        # new_image.save('new_image.jpg')
-
-
-        # Convert the bytes to a numpy array
-        # image_nparray = np.frombuffer(encoded_blocks, dtype=np.uint8)
-        # # Convert the numpy array to an Image object
-        # image = Image.fromarray(image_nparray)
-        # # Save the image to a file -- this isn't working for some reason
-        # image.save(output_name)
-
-
-        # Unflatten the array
-        # arr = image_nparray.reshape(my_image_shape)
-        # Assume that you have some bytes data in a BytesIO object
-
-
-        # with open(output_name, "wb") as copy_file:
-        #     # Write the image bytes to the new file
-        #     copy_file.write(decrypted_blocks)
-        # Create a new PIL Image object from the numpy array
-        # output_name = Image.fromarray(decrypted_blocks)
-
-
-        # # Assuming 'output_name' is the name of the file you want to save the image to
-        # decrypted_image.save(output_name)
-
-
-
-        # # todo check if actually reads bytes https://groups.google.com/g/pocoo-libs/c/Cwr-muUZOts
-        # image_bytes = file.stream.read()
-        # # read the bytes from the file object
-        # image_bytes = file.read()
-        # # you need to get the original enck value from the user to decrypt the whole thing
-
-        # # decrypted_blocks = decrypt(str(image_bytes), number_Blocks)
-        # decrypted_blocks = decrypt(image_bytes, number_Blocks)
-
-        
-
-        # # convert the string to bytes
-        # image_bytes = decrypted_blocks.encode()
-
-        # # create an in-memory file-like object
-        # file = io.BytesIO(image_bytes)
-
-        # # open the image from the file
-        # image = Image.open(file)
-
-        # # todo send the image and get image from frontend
 
         img_file = open(output_name, 'rb')
 
         # Return the image file using send_file
         return send_file(img_file, mimetype='image/jpeg')
-
-        # # return decrypted_blocks
-        # return send_file(new_image, as_attachment=True)
-        # return jsonify(success=True)
 
 
 '''TO DO!!!'''
