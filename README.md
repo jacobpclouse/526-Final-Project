@@ -5,6 +5,8 @@ ICSI Final Project for Dolunay (Luna) Dagci and Jacob Clouse - Spring 2023 [![Gi
         
 > This is the backend, the frontend is stored at: https://github.com/dolnuea/frontend-alt-n-bit
 
+This project was shown at UAlbany's first ever Showcase Day on April 27th, 2023!
+
 ## Paper: Alternative N-bit Key Data Encryption for Block Ciphers
 - Download link: https://sol.sbc.org.br/index.php/sbseg/article/download/13990/13839/
 
