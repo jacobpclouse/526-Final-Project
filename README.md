@@ -21,7 +21,7 @@ This project was shown at UAlbany's first ever Showcase Day on April 27th, 2023!
 ## How to run this code:
 1) In your destination folder, you have to clone this repo using ```https://github.com/jacobpclouse/526-Final-Project.git```
 2) You will also have to clone the frontend using ```https://github.com/dolnuea/frontend-alt-n-bit.git```
-3) You will need cd into the '526-Final-Project' folder and install requirements.txt using ```pip install -r requirements.txt```
+3) You will need cd into the '526-Final-Project' folder and install requirements.txt using ```pip install -r requirements.text```
 4) You will then need to follow the README.md in the 'frontend-alt-n-bit' folder to install the needed packages
 5) You will run the flask backend using ```python demo.py```
 6) You will run the vue frontend using ```npm run serve```

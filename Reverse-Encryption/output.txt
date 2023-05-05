@@ -1,1 +1,0 @@
-<PIL.PngImagePlugin.PngImageFile image mode=RGB size=735x980 at 0x1747ECA2290>
