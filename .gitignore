@@ -45,3 +45,5 @@ pnpm-debug.log*
 *.txt
 *.shape
 *.cipher
+sss/__pycache__/
+UPLOADS/
