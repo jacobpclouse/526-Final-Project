@@ -1,8 +1,7 @@
-import os
-
-from PIL import Image, ImageDraw
 import random
+
 import numpy as np
+from PIL import Image
 from scipy.interpolate import lagrange as lag
 
 k = 2  # minimum number of shares required to reconstruct the secret

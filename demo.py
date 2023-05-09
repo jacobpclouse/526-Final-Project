@@ -4,44 +4,32 @@
 # Edited on Windows 10 - may need to be edited if you want to use on Linux/MacOS
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-# Importing Libraries / Modules 
+# Importing Libraries / Modules
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 import datetime
-from distutils import extension
+import glob
 import io
-
-from PIL import Image
-
-# import random
-
-# encryption imports
-from AES import AES
-from Alt_N_Bit import generate_key_pair, encrypt, decrypt, split_blocks, create_image_from_bytes, read_image_bytes, decryptImage,write_to_file
-from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
-
-# Backend imports 
-from flask import Flask, flash, request, redirect, url_for, render_template, send_from_directory, send_file, \
-    make_response, Response, \
-    jsonify  # for web back end
-from flask_cors import CORS, cross_origin
-import base64
-import json
-from io import BytesIO
-import builtins
-
+import os
 # moving files and folders
 import shutil  # used to move files around and clean folders
-import os
-import numpy as np  # used to store actual encrypted data in a file and retrieve it
 import zipfile  # used in zipping images
-import glob
-import uuid  # get extensions for images
-import magic  # used to get mime data for the image
 
+import magic  # used to get mime data for the image
+import numpy as np  # used to store actual encrypted data in a file and retrieve it
+from PIL import Image
+from cryptography.hazmat.primitives.asymmetric import ec  # For generating initial ec key pair
+# Backend imports
+from flask import Flask, request, send_file, \
+    jsonify  # for web back end
+from flask_cors import CORS
+
+# encryption imports
+from Alt_N_Bit import generate_key_pair, encrypt, decrypt, decryptImage, write_to_file
 # shamir Secret Sharing stuff
 from sss import sss_question2
 from sss.homomorphism_question2 import downscale_shares, generate_shares, reconstruct_downscaled
-from sss.sss_question2 import read_grayscale_pixels
+
+# import random
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Variables
