@@ -638,7 +638,7 @@ def encrypt_sss():
         #  generate downscaled shares
         share_paths = generate_shares(i, i_shape, n=n)[1]
         # share_paths = ["share_grayscale_1.bmp", "share_grayscale_2.bmp", "share_grayscale_3.bmp"]
-        downscaled_shares, paths, img_list = downscale_shares(share_paths)
+        downscaled_shares, paths = downscale_shares(share_paths)
 
         # zip the downscaled shares, the shape of the original image and generated shares
         numpy_downscaled_shares_name = 'numpy_downscaled_shares_data.npy'
