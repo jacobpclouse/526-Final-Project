@@ -64,7 +64,7 @@ def downscale_shares(share_paths):
         shares.append(share)
         share_names.append(name)
         img_list.append(result[1])
-    return np.array(shares), share_names, np.array(img_list)
+    return np.array(shares), share_names
 
 
 # Step 4: Pick any 2 downscaled shares, i.e., from Is1, Is2, Is3, and reconstruct the downscaled plaintext
